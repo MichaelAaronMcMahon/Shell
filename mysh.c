@@ -14,10 +14,7 @@ int executeCmd(char* buf){
     int wstatus;
     char * const* args = {NULL};
     pid_t child = fork();
-    if(strcmp(token, "quit") == 0){
-        printf("match\n");
-        return 2;
-    }
+    
     if(child==0){
         //printf("token: %s\n", token);
         int st = execv(token, args);
@@ -39,18 +36,23 @@ int executeCmd(char* buf){
 
 int readInput(FILE *input, int fd){
     int cond = 1;
-    while(cond==1){
-        if(isatty(fd) == 1){
+    char *buf = malloc(sizeof(char)*50);
+    if(isatty(fd) == 1){
         printf("Enter a command:\n");
+    }
+    while(fgets(buf, 50, input) != NULL){
+        if(buf[0]=='e' && buf[1]=='x' && buf[2]=='i' && buf[3]=='t' && isatty(fd) 
+            && (buf[4]==' ' || buf[4]=='\n')){
+            printf("Exiting\n");
+            break;
+        }
+        cond = executeCmd(buf);
+        if(isatty(fd) == 1){
+            printf("Enter a command:\n");
         }
         char *buf = malloc(sizeof(char)*50);
-        fgets(buf, 50, input);
-        cond = executeCmd(buf);
-        printf("%d\n", cond);
     }
     
-    
-    //printf("%s\n", buf);
     
 }
 
