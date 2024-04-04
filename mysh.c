@@ -11,13 +11,38 @@
 
 int executeCmd(char* buf){
     char* token = strtok(buf, " \n");
+    char* prog1 = malloc(sizeof(char)*strlen(token));
+    strcpy(prog1, token);
     int wstatus;
-    char * const* args = {NULL};
+    //char ** args = malloc(sizeof(char*)*5);
+    char * args[15];
+    int argslength = 15;
+    args[0] = NULL;
+    int argcount = 0;
+    token = strtok(NULL, " \n");
+    while(token != NULL){
+        /*if(argcount == argslength-1){
+            char** argsnew = malloc(sizeof(char*)*5);
+            for(int i=0; i<argcount; i++){
+                argsnew[i] = malloc(sizeof(char)*strlen(args[i]));
+                strcpy(argsnew[i], args[i]);
+                //free(args[i]);
+            }
+            args = argsnew;
+            argslength += 5;
+        }*/
+        args[argcount] = malloc(sizeof(char)*strlen(token));
+        strcpy(args[argcount], token);
+        args[argcount+1] = NULL;
+        argcount++;
+        token = strtok(NULL, " \n");
+    }
+
     pid_t child = fork();
     
     if(child==0){
         //printf("token: %s\n", token);
-        int st = execv(token, args);
+        int st = execv(prog1, args);
         //printf("%d\n", st);
         printf("shouldn't be here");
     }
@@ -26,11 +51,7 @@ int executeCmd(char* buf){
     }
     wait(&wstatus);
     
-    /*while(token != NULL){
-        
-
-        token = strtok(NULL, "\n");
-    }*/
+    
     
 }
 
