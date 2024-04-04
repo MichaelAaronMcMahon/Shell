@@ -11,48 +11,52 @@
 
 int executeCmd(char* buf){
     char* token = strtok(buf, " \n");
-    char* prog1 = malloc(sizeof(char)*strlen(token));
+    char* prog1 = malloc(strlen(token) + 1); // +1 for null terminator
+    if (!prog1) {
+        perror("malloc");
+        return -1;
+    }
     strcpy(prog1, token);
-    int wstatus;
-    //char ** args = malloc(sizeof(char*)*5);
-    char * args[15];
-    int argslength = 15;
-    args[0] = NULL;
-    int argcount = 0;
+
+    char *args[15]; // increases size directly, consider dynamic resizing if needed
+    args[0] = prog1; // first argument should be the command itself
+    int argcount = 1; // start from 1 to account for the command itself
+
     token = strtok(NULL, " \n");
-    while(token != NULL){
-        /*if(argcount == argslength-1){
-            char** argsnew = malloc(sizeof(char*)*5);
-            for(int i=0; i<argcount; i++){
-                argsnew[i] = malloc(sizeof(char)*strlen(args[i]));
-                strcpy(argsnew[i], args[i]);
-                //free(args[i]);
-            }
-            args = argsnew;
-            argslength += 5;
-        }*/
-        args[argcount] = malloc(sizeof(char)*strlen(token));
+    while(token != NULL && argcount < 14){ // leve space for NULL terminator
+        args[argcount] = malloc(strlen(token) + 1); // +1 for null terminator
+        if (!args[argcount]) {
+            perror("malloc");
+            // free previously allocated memory here
+            return -1;
+        }
         strcpy(args[argcount], token);
-        args[argcount+1] = NULL;
-        argcount++;
+        argcount++
         token = strtok(NULL, " \n");
     }
+    args[argcount] = NULL; // null-termiate the argument list
 
     pid_t child = fork();
     
-    if(child==0){
-        //printf("token: %s\n", token);
-        int st = execv(prog1, args);
-        //printf("%d\n", st);
-        printf("shouldn't be here");
+    if(chld==0){
+        execv(prog1, args);
+        perror("execv"); // this only reache if execv fails
+        exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
     else if (child == -1){
-        printf("err\n");
+        perror("fork")
     }
+    
+    int wstatus;
     wait(&wstatus);
-    
-    
-    
+
+    // Free allocated memory
+    for(int i = 1; i < argcount; i++){ // start from 1, prog1 is args[0]
+        free(args[i]);
+    }
+    free(prog1);
+
+    return WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : -1;
 }
 
 int readInput(FILE *input, int fd){
