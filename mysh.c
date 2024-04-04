@@ -59,10 +59,13 @@ int executeCmd(char* buf){
     return WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : -1;
 }
 
-int readInput(FILE *input, int fd){
-    int cond = 1;
-    char *buf = malloc(sizeof(char)*50);
-    if(isatty(fd) == 1){
+int readInput(FILE *input, int fd) {
+    char *buf = malloc(sizeof(char) * 50); // Allocate once outside the loop
+    if (buf == NULL) {
+        perror("malloc");
+        return -1;
+    }
+    if (isatty(fd) == 1) {
         printf("Enter a command:\n");
     }
     while(fgets(buf, 50, input) != NULL){
@@ -71,14 +74,12 @@ int readInput(FILE *input, int fd){
             printf("Exiting\n");
             break;
         }
-        cond = executeCmd(buf);
-        if(isatty(fd) == 1){
+        executeCmd(buf);
+        if (isatty(fd) == 1) {
             printf("Enter a command:\n");
         }
-        char *buf = malloc(sizeof(char)*50);
     }
-    
-    
+    free(buf); // Free once after the loop ends
 }
 
 int main(int argc, char ** argv){
