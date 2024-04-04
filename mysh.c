@@ -9,6 +9,29 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+int handleBuiltInCommands(char *cmd, char **args) {
+    if (strcmp(cmd, "cd") == 0) {
+        if (chdir(args[1]) != 0) {
+            perror("cd");
+        }
+        return 1;
+    } else if (strcmp(cmd, "pwd") == 0) {
+        char cwd[1024];
+        if (getcwd(cwd, sizeof(cwd)) != NULL) {
+            printf("%s\n", cwd);
+        } else {
+            perror("pwd");
+        }
+        return 1;
+    } else if (strcmp(cmd, "exit") == 0) {
+        exit(EXIT_SUCCESS);
+    } else if (strcmp(cmd, "which") == 0) {
+        // which command implementation
+        return 1;
+    }
+    return 0; // Not a built-in command
+}
+
 int executeCmd(char* buf){
     char* token = strtok(buf, " \n");
     char* prog1 = malloc(strlen(token) + 1); // +1 for null terminator
@@ -114,10 +137,13 @@ int executeCmd(char* buf){
     return WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : -1;
 }
 
-int readInput(FILE *input, int fd){
-    int cond = 1;
-    char *buf = malloc(sizeof(char)*50);
-    if(isatty(fd) == 1){
+int readInput(FILE *input, int fd) {
+    char *buf = malloc(sizeof(char) * 50); // Allocate once outside the loop
+    if (buf == NULL) {
+        perror("malloc");
+        return -1;
+    }
+    if (isatty(fd) == 1) {
         printf("Enter a command:\n");
     }
     while(fgets(buf, 50, input) != NULL){
@@ -126,14 +152,12 @@ int readInput(FILE *input, int fd){
             printf("Exiting\n");
             break;
         }
-        cond = executeCmd(buf);
-        if(isatty(fd) == 1){
+        executeCmd(buf);
+        if (isatty(fd) == 1) {
             printf("Enter a command:\n");
         }
-        char *buf = malloc(sizeof(char)*50);
     }
-    
-    
+    free(buf); // Free once after the loop ends
 }
 
 int main(int argc, char ** argv){
