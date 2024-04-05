@@ -234,26 +234,44 @@ int executeCmd(char* buf){
 }
 
 int readInput(FILE *input, int fd) {
-    char *buf = malloc(sizeof(char) * 50); // Allocate once outside the loop
+    char *buf = malloc(sizeof(char) * 256);
     if (buf == NULL) {
         perror("malloc");
         return -1;
     }
+
     if (isatty(fd) == 1) {
         printf("Enter a command:\n");
     }
-    while(fgets(buf, 50, input) != NULL){
-        if(buf[0]=='e' && buf[1]=='x' && buf[2]=='i' && buf[3]=='t' && isatty(fd) 
-            && (buf[4]==' ' || buf[4]=='\n')){
-            printf("Exiting\n");
-            break; //temporary until built in commands are done
+    while (fgets(buf, 256, input) != NULL) {
+        char *tmpBuf = strdup(buf); // Duplicate buf for tokenization without modifying the original buf
+        if (!tmpBuf) {
+            perror("strdup");
+            break;
         }
-        executeCmd(buf);
+
+        char *args[15];
+        int argcount = 0;
+        char *token = strtok(tmpBuf, " \n");
+
+        while (token != NULL && argcount < 14) {
+            args[argcount++] = token;
+            token = strtok(NULL, " \n");
+        }
+        args[argcount] = NULL;
+
+        if (argcount > 0 && !handleBuiltInCommands(args[0], args)) {
+            executeCmd(buf); // Pass the original buffer directly
+        }
+
+        free(tmpBuf); // Free the duplicated buffer
+
         if (isatty(fd) == 1) {
             printf("Enter a command:\n");
         }
     }
-    free(buf); // Free once after the loop ends
+
+    free(buf);
 }
 
 int main(int argc, char ** argv){
