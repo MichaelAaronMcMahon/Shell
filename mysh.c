@@ -40,6 +40,8 @@ int p1in = 0;
 int p1out = 0; 
 int p2in = 0;
 int p2out = 0;
+int piping = 0;
+int pipeIndex = 0;
 
 int executeCmd(char* buf){
     char* token = strtok(buf, " \n");
@@ -50,6 +52,7 @@ int executeCmd(char* buf){
     }
     strcpy(prog1, token);
     char *args[15]; // increases size directly, consider dynamic resizing if needed
+    char *args1[15];
     args[0] = prog1; // first argument should be the command itself
     int argcount = 1; // start from 1 to account for the command itself
     int currentProg = 1; //will be changed to 2 when a pipe is found
@@ -136,10 +139,25 @@ int executeCmd(char* buf){
             }
             token = strtok(NULL, " \n");
         }
-        //if(token != NULL){
+        else if (strcmp(token, "|") == 0){ //checks for piping
+            piping = 1;
+            args[argcount] = NULL; //null terminates args for prog1
+            pipeIndex = argcount+1; //sets index of the beginning of args for prog2
+            argcount++;
+            
+            token = strtok(NULL, " \n");
+            if(token != NULL){
+                char *prog2 = malloc(strlen(token) +1);
+                strcpy(prog2, token);
+                args[argcount] = prog2; //begins setting the args for prog2
+                argcount++;
+                currentProg = 2; //sets currentProg to prog2
+                token = strtok(NULL, " \n");
+            }
+            
+
+        }
         else{
-           // if(strcmp(token, "<") != 0 && strcmp(token, ">") != 0 && strcmp(token, "|") != 0 && 
-           //     strstr(token, "*") == NULL){
             args[argcount] = malloc(strlen(token) + 1); // +1 for null terminator
             if (!args[argcount]) {
                 perror("malloc");
@@ -149,35 +167,63 @@ int executeCmd(char* buf){
             strcpy(args[argcount], token);
             argcount++;
             token = strtok(NULL, " \n");
-        //        }
-            
         }
-
-        
     }
     args[argcount] = NULL; // null-termiate the argument list
-
-    pid_t child = fork();
     
-    if(child==0){
+    int p[2];
+    pipe(p); //sets up pipe
+    pid_t child1 = fork(); //process for prog1
+    
+    if(child1==0){
+        int outfd = 1;
+        if(piping==1){
+            outfd = p[1]; //sets prog1's output to the write end of the pipe
+            close(p[0]);
+            dup2(p[1], 1);
+        }
         if(p1in == 1){ //redirect standard input
             int fd = open(prog1in, O_RDONLY);
             dup2(fd, 0);
         }
         if(p1out==1){ //redirect standard output
             int fd = open(prog1out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
-            dup2(fd, 1);
+            dup2(fd, outfd);
         }
-        execv(prog1, args);
+        execv(prog1, args); //executes prog1 with args array 
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
-    else if (child == -1){
+    pid_t child2 = fork(); //process for prog2
+    if(piping==1){
+        if(child2 == 0){
+            close(p[1]);
+            dup2(p[0], 0); //sets input to read end of pipe
+            if(p2in == 1){ //redirect standard input
+                int fd = open(prog2in, O_RDONLY);
+                dup2(fd, p[1]);
+            }
+            if(p2out==1){ //redirect standard output
+                int fd = open(prog2out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
+                dup2(fd, 1);
+            }
+            execv(args[pipeIndex], args+pipeIndex); //executes prog2 with latter section of args array
+            perror("execv"); // this only reache if execv fails
+            exit(EXIT_FAILURE); // ensures child process exits if execv fails
+        }
+        else if (child2 == -1){
+            perror("fork");
+        }
+    }
+    else if (child1 == -1){
         perror("fork");
     }
-    
-    int wstatus;
-    wait(&wstatus);
+    close(p[0]);
+    close(p[1]);
+    int wstatus1;
+    int wstatus2;
+    wait(&wstatus1);
+    wait(&wstatus2);
 
     // Free allocated memory
     for(int i = 1; i < argcount; i++){ // start from 1, prog1 is args[0]
@@ -185,7 +231,8 @@ int executeCmd(char* buf){
     }
     free(prog1);
 
-    return WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : -1;
+    return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
+    return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
 }
 
 int readInput(FILE *input, int fd) {

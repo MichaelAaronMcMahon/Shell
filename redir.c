@@ -10,9 +10,10 @@
 #include <sys/wait.h>
 
 int main(void) {
-    char buf[15];
-    fgets(buf, sizeof(buf), stdin);
-    printf("%s\n", buf);        
-    
+    char buf[30];
+    while(fgets(buf, sizeof(buf), stdin)){
+        printf("%s", buf);
+    }
+    printf("end of redir\n");
     return 0;
 }

@@ -1,1 +1,1 @@
-from p.txt
+yo yo yo
