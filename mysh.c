@@ -42,13 +42,7 @@ int handleBuiltInCommands(char *cmd, char **args) {
             }
         }
 
-        // Environment path search implementation (remains the same)
-        char pathEnvCopy[2048];
-        strncpy(pathEnvCopy, getenv("PATH"), sizeof(pathEnvCopy));
-        pathEnvCopy[sizeof(pathEnvCopy) - 1] = '\0'; // Ensure null-termination
-        char* path = strtok(pathEnvCopy, ":");
-        struct stat statbuf;
-        int found = 0;
+        
         // not done yet with which command implementation
         return 1;
     }
