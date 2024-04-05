@@ -32,6 +32,15 @@ int handleBuiltInCommands(char *cmd, char **args) {
     return 0; // Not a built-in command
 }
 
+char* prog1in; //names of redirected input and output files
+char* prog1out;
+char* prog2in;
+char* prog2out;
+int p1in = 0;
+int p1out = 0; 
+int p2in = 0;
+int p2out = 0;
+
 int executeCmd(char* buf){
     char* token = strtok(buf, " \n");
     char* prog1 = malloc(strlen(token) + 1); // +1 for null terminator
@@ -40,11 +49,10 @@ int executeCmd(char* buf){
         return -1;
     }
     strcpy(prog1, token);
-
     char *args[15]; // increases size directly, consider dynamic resizing if needed
     args[0] = prog1; // first argument should be the command itself
     int argcount = 1; // start from 1 to account for the command itself
-
+    int currentProg = 1; //will be changed to 2 when a pipe is found
     token = strtok(NULL, " \n");
     while(token != NULL && argcount < 14){ // leve space for NULL terminator
         if(strstr(token, "*")){ //checks for * wildcard
@@ -63,7 +71,6 @@ int executeCmd(char* buf){
                     break;
                 }
             }
-            printf("wildindex: %d\n", wildindex);
             DIR *handle;
             if(maxSlash != 0){
                 wilddir[maxSlash] = '\0'; //terminates wilddir at the last slash, making it just the subdirectories
@@ -72,6 +79,7 @@ int executeCmd(char* buf){
             else{
                 handle = opendir(".");
             }
+            int finds = 0;
             struct dirent *sd = readdir(handle);
             while(sd != NULL){ //iterates trough each directory entry in wilddir
                 int match = 0;
@@ -93,13 +101,45 @@ int executeCmd(char* buf){
                     }
                     strcpy(args[argcount], argname);
                     argcount++;
+                    finds++;
                 }
                 
                 sd = readdir(handle); //iterate to next file in wilddir
             }
+            if(finds != 0) token = strtok(NULL, " \n");
+        }
+        else if(strcmp(token, ">") == 0){ //checks for output redirection
+            token = strtok(NULL, " \n");
+            if(currentProg == 1){
+                prog1out = malloc(sizeof(char)*strlen(token) + 1);
+                strcpy(prog1out, token);
+                p1out = 1;
+            }
+            else{
+                prog2out = malloc(sizeof(char)*strlen(token) + 1);
+                strcpy(prog2out, token);
+                p2out = 1;
+            }
             token = strtok(NULL, " \n");
         }
-        if(token != NULL){
+        else if(strcmp(token, "<") == 0){ //checks for input redirection
+            token = strtok(NULL, " \n");
+            if(currentProg == 1){
+                prog1in = malloc(sizeof(char)*strlen(token) + 1);
+                strcpy(prog1in, token);
+                p1in = 1;
+            }
+            else{
+                prog2in = malloc(sizeof(char)*strlen(token) + 1);
+                strcpy(prog2in, token);
+                p2in = 1;
+            }
+            token = strtok(NULL, " \n");
+        }
+        //if(token != NULL){
+        else{
+           // if(strcmp(token, "<") != 0 && strcmp(token, ">") != 0 && strcmp(token, "|") != 0 && 
+           //     strstr(token, "*") == NULL){
             args[argcount] = malloc(strlen(token) + 1); // +1 for null terminator
             if (!args[argcount]) {
                 perror("malloc");
@@ -109,7 +149,10 @@ int executeCmd(char* buf){
             strcpy(args[argcount], token);
             argcount++;
             token = strtok(NULL, " \n");
+        //        }
+            
         }
+
         
     }
     args[argcount] = NULL; // null-termiate the argument list
@@ -117,6 +160,14 @@ int executeCmd(char* buf){
     pid_t child = fork();
     
     if(child==0){
+        if(p1in == 1){ //redirect standard input
+            int fd = open(prog1in, O_RDONLY);
+            dup2(fd, 0);
+        }
+        if(p1out==1){ //redirect standard output
+            int fd = open(prog1out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
+            dup2(fd, 1);
+        }
         execv(prog1, args);
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
