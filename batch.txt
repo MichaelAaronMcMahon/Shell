@@ -1,1 +1,1 @@
-argsprog a b c | redir
+argsprog a b c | redir < p.txt

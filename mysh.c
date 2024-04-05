@@ -176,11 +176,9 @@ int executeCmd(char* buf){
     pid_t child1 = fork(); //process for prog1
     
     if(child1==0){
-        int outfd = 1;
         if(piping==1){
-            outfd = p[1]; //sets prog1's output to the write end of the pipe
             close(p[0]);
-            dup2(p[1], 1);
+            dup2(p[1], 1); //sets prog1's output to the write end of the pipe
         }
         if(p1in == 1){ //redirect standard input
             int fd = open(prog1in, O_RDONLY);
@@ -188,7 +186,7 @@ int executeCmd(char* buf){
         }
         if(p1out==1){ //redirect standard output
             int fd = open(prog1out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
-            dup2(fd, outfd);
+            dup2(fd, 1);
         }
         execv(prog1, args); //executes prog1 with args array 
         perror("execv"); // this only reache if execv fails
@@ -201,7 +199,7 @@ int executeCmd(char* buf){
             dup2(p[0], 0); //sets input to read end of pipe
             if(p2in == 1){ //redirect standard input
                 int fd = open(prog2in, O_RDONLY);
-                dup2(fd, p[1]);
+                dup2(fd, 0);
             }
             if(p2out==1){ //redirect standard output
                 int fd = open(prog2out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
@@ -248,7 +246,7 @@ int readInput(FILE *input, int fd) {
         if(buf[0]=='e' && buf[1]=='x' && buf[2]=='i' && buf[3]=='t' && isatty(fd) 
             && (buf[4]==' ' || buf[4]=='\n')){
             printf("Exiting\n");
-            break;
+            break; //temporary until built in commands are done
         }
         executeCmd(buf);
         if (isatty(fd) == 1) {
