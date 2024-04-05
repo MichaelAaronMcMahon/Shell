@@ -26,7 +26,30 @@ int handleBuiltInCommands(char *cmd, char **args) {
     } else if (strcmp(cmd, "exit") == 0) {
         exit(EXIT_SUCCESS);
     } else if (strcmp(cmd, "which") == 0) {
-        // which command implementation
+
+
+        // Check for correct number of arguments
+        if (args[1] == NULL || args[2] != NULL) {
+            printf("which: incorrect number of arguments\n");
+            return 1;
+        }
+
+        // Check if the command is a built-in command
+        for (int i = 0; builtIns[i] != NULL; i++) {
+            if (strcmp(args[1], builtIns[i]) == 0) {
+                printf("%s: is a shell built-in\n", args[1]);
+                return 1;
+            }
+        }
+
+        // Environment path search implementation (remains the same)
+        char pathEnvCopy[2048];
+        strncpy(pathEnvCopy, getenv("PATH"), sizeof(pathEnvCopy));
+        pathEnvCopy[sizeof(pathEnvCopy) - 1] = '\0'; // Ensure null-termination
+        char* path = strtok(pathEnvCopy, ":");
+        struct stat statbuf;
+        int found = 0;
+        // not done yet with which command implementation
         return 1;
     }
     return 0; // Not a built-in command
