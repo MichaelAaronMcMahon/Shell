@@ -11,9 +11,10 @@
 
 int main(void) {
     char buf[30];
+    printf("beginning of redir\n");
     while(fgets(buf, sizeof(buf), stdin)){
         printf("%s", buf);
     }
-    printf("end of redir\n");
+    printf("\nend of redir\n");
     return 0;
 }

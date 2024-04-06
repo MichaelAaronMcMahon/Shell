@@ -38,7 +38,7 @@ int handleBuiltInCommands(char *cmd, char **args) {
         char pathEnvCopy[2048];
         strncpy(pathEnvCopy, getenv("PATH"), sizeof(pathEnvCopy));
         pathEnvCopy[sizeof(pathEnvCopy) - 1] = '\0'; // Ensure null-termination
-        char* path = strtok(pathEnvCopy, ":")
+        char* path = strtok(pathEnvCopy, ":");
         struct stat statbuf;
         int found = 0;
         
@@ -47,10 +47,11 @@ int handleBuiltInCommands(char *cmd, char **args) {
             snprintf(fullPath, sizeof(fullPath), "%s/%s", path, args[1]);
             if (stat(fullPath, &statbuf) == 0 && (statbuf.st_mode & S_IXUSR || statbuf.st_mode & S_IXGRP || statbuf.st_mode & S_IXOTH)) {
                 printf("%s\n", fullPath);
-                found = 1
+                found = 1;
                 break; // Stop after fiding the first occurrence
-            
+            }
             path = strtok(NULL, ":");
+
         }
 
         // If the program was not found
@@ -62,18 +63,19 @@ int handleBuiltInCommands(char *cmd, char **args) {
     return 0; // Not a built-in command
 }
 
-char* prog1in; //names of redirected input and output files
-char* prog1out;
-char* prog2in;
-char* prog2out;
-int p1in = 0;
-int p1out = 0; 
-int p2in = 0;
-int p2out = 0;
-int piping = 0;
-int pipeIndex = 0;
+
 
 int executeCmd(char* buf){
+    char* prog1in; //names of redirected input and output files
+    char* prog1out;
+    char* prog2in;
+    char* prog2out;
+    int p1in = 0;
+    int p1out = 0; 
+    int p2in = 0;
+    int p2out = 0;
+    int piping = 0;
+    int pipeIndex = 0;
     char* token = strtok(buf, " \n");
     char* prog1 = malloc(strlen(token) + 1); // +1 for null terminator
     if (!prog1) {
@@ -87,7 +89,7 @@ int executeCmd(char* buf){
     int argcount = 1; // start from 1 to account for the command itself
     int currentProg = 1; //will be changed to 2 when a pipe is found
     token = strtok(NULL, " \n");
-    while(token != NULL && argcount < 14){ // leve space for NULL terminator
+    while(token != NULL && argcount < 14){ // leave space for NULL terminator
         if(strstr(token, "*")){ //checks for * wildcard
             char* wilddir = malloc(strlen(token)+1);
             strcpy(wilddir, token);
@@ -139,7 +141,17 @@ int executeCmd(char* buf){
                 
                 sd = readdir(handle); //iterate to next file in wilddir
             }
-            if(finds != 0) token = strtok(NULL, " \n");
+            if(finds == 0) {
+                args[argcount] = malloc(strlen(token) + 1); // +1 for null terminator
+                if (!args[argcount]) {
+                    perror("malloc");
+                    // free previously allocated memory here
+                    return -1;
+                }
+                strcpy(args[argcount], token);
+                argcount++;
+            }
+            token = strtok(NULL, " \n");
         }
         else if(strcmp(token, ">") == 0){ //checks for output redirection
             token = strtok(NULL, " \n");
@@ -200,12 +212,13 @@ int executeCmd(char* buf){
         }
     }
     args[argcount] = NULL; // null-termiate the argument list
-    
     int p[2];
     pipe(p); //sets up pipe
     pid_t child1 = fork(); //process for prog1
     
     if(child1==0){
+        //dup2(0,0);
+        //dup2(1,1);
         if(piping==1){
             close(p[0]);
             dup2(p[1], 1); //sets prog1's output to the write end of the pipe
@@ -218,13 +231,15 @@ int executeCmd(char* buf){
             int fd = open(prog1out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
             dup2(fd, 1);
         }
-        execv(prog1, args); //executes prog1 with args array 
+        execv(args[0], args); //executes prog1 with args array 
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
     pid_t child2 = fork(); //process for prog2
     if(piping==1){
         if(child2 == 0){
+            //dup2(0,0);
+            //dup2(1,1);
             close(p[1]);
             dup2(p[0], 0); //sets input to read end of pipe
             if(p2in == 1){ //redirect standard input
@@ -255,7 +270,7 @@ int executeCmd(char* buf){
 
     // Free allocated memory
     for(int i = 1; i < argcount; i++){ // start from 1, prog1 is args[0]
-        free(args[i]);
+        if(args[i] != NULL) free(args[i]);
     }
     free(prog1);
 
@@ -321,6 +336,6 @@ int main(int argc, char ** argv){
         printf("Welcome to My Shell\n");
     }
     readInput(input, fd);
-    
+    return 0;
 
 }

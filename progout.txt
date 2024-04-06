@@ -1,5 +1,5 @@
 argv[0]: argsprog
-argv[1]: a
-argv[2]: b
-argv[3]: c
-end of redir
+argv[1]: abcd
+argv[2]: efgh
+argv[3]: ijkl
+argv[4]: mnop
