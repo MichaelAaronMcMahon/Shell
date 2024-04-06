@@ -107,8 +107,8 @@ void rev_line(void *st, char *line)
     putchar('\n');
 }
 
-
-/*int main(int argc, char **argv)
+/*
+int main(int argc, char **argv)
 {
     char *fname = argc > 1 ? argv[1] : "test.txt";
 

@@ -77,7 +77,7 @@ int handleBuiltInCommands(char *cmd, char **args) {
 
 
 void executeCmd(void *st, char* buf){
-    //printf("Enter a command:\n");
+    
     char* prog1in; //names of redirected input and output files
     char* prog1out;
     char* prog2in;
@@ -279,22 +279,17 @@ void executeCmd(void *st, char* buf){
     pid_t wpid2;
     //while ((wpid1 = wait(&wstatus1)) > 0);
     //while ((wpid2 = wait(&wstatus2)) > 0);
-    wait(&wstatus1);
-    wait(&wstatus2);
     close(p[0]);
     close(p[1]);
-   // printf("wstatus1: %d\n", wstatus1);
-    //printf("wpid: %d\n", wpid1);
-    //wait(&wstatus1);
-    //wait(&wstatus2);
+    wait(&wstatus1);
+    wait(&wstatus2);
 
     // Free allocated memory
     for(int i = 1; i < argcount; i++){ // start from 1, prog1 is args[0]
         if(args[i] != NULL) free(args[i]);
     }
     free(prog1);
-    //printf("Enter a command:\n");
-    write(1, "Enter a command: \n", 18);
+    printf("Enter a command:\n");
 
     //return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
     //return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
@@ -309,6 +304,28 @@ int readInput(FILE *input, int fd) {
 
     if (isatty(fd) == 1) {
         printf("Enter a command:\n");
+    }
+    while (fgets(buf, 256, input) != NULL) {
+        char *tmpBuf = strdup(buf); // Duplicate buf for tokenization without modifying the original buf
+        if (!tmpBuf) {
+            perror("strdup");
+            break;
+        }
+
+        char *args[15];
+        int argcount = 0;
+        char *token = strtok(tmpBuf, " \n");
+
+        while (token != NULL && argcount < 14) {
+            args[argcount++] = token;
+            token = strtok(NULL, " \n");
+        }
+        args[argcount] = NULL;
+
+        if (argcount > 0 && !handleBuiltInCommands(args[0], args)) {
+            int n=0;
+            read_lines(fd, executeCmd, &n);
+        }
     }
     int n=0;
     read_lines(fd, executeCmd, &n);

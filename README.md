@@ -72,7 +72,7 @@ end of redir
 Test7: mysh handles redirection of both standard input and standard output in one command
 input:
 ./mysh
-redir < progin.txt > progout.txt
+./redir < progin.txt > progout.txt
 expected output (written to progout.txt):
 beginning of redir
 123 xyz abcd lmnop
@@ -92,3 +92,4 @@ argv[3]: baz
 
 end of redir
 
+Test9

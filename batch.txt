@@ -1,3 +1,1 @@
-prog
-prog
-prog
+argsprog foo bar baz | redir
