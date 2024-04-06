@@ -14,11 +14,11 @@ int handleBuiltInCommands(char *cmd, char **args) {
     char* builtIns[] = {"cd", "pwd", "exit", "which", NULL};
 
     if (strcmp(cmd, "cd") == 0) {
-        // Existing implementation
+        // make implementation
     } else if (strcmp(cmd, "pwd") == 0) {
-        // Existing implementation
+        // make implementation
     } else if (strcmp(cmd, "exit") == 0) {
-        // Existing implementation
+        // Emake implementation
     } else if (strcmp(cmd, "which") == 0) {
         // Check for correct number of arguments
         if (args[1] == NULL || args[2] != NULL) {
