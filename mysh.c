@@ -10,23 +10,53 @@
 #include <sys/wait.h>
 
 int handleBuiltInCommands(char *cmd, char **args) {
+    // List of built-in commands for comparison
+    char* builtIns[] = {"cd", "pwd", "exit", "which", NULL};
+
     if (strcmp(cmd, "cd") == 0) {
-        if (chdir(args[1]) != 0) {
-            perror("cd");
-        }
-        return 1;
+        // Existing implementation
     } else if (strcmp(cmd, "pwd") == 0) {
-        char cwd[1024];
-        if (getcwd(cwd, sizeof(cwd)) != NULL) {
-            printf("%s\n", cwd);
-        } else {
-            perror("pwd");
-        }
-        return 1;
+        // Existing implementation
     } else if (strcmp(cmd, "exit") == 0) {
-        exit(EXIT_SUCCESS);
+        // Existing implementation
     } else if (strcmp(cmd, "which") == 0) {
-        // which command implementation
+        // Check for correct number of arguments
+        if (args[1] == NULL || args[2] != NULL) {
+            printf("which: incorrect number of arguments\n");
+            return 1;
+        }
+
+        // Check if the command is a built-in command
+        for (int i = 0; builtIns[i] != NULL; i++) {
+            if (strcmp(args[1], builtIns[i]) == 0) {
+                printf("%s: is a shell built-in\n", args[1]);
+                return 1;
+            }
+        }
+
+        // Environment path search implementation (remains the same)
+        char pathEnvCopy[2048];
+        strncpy(pathEnvCopy, getenv("PATH"), sizeof(pathEnvCopy));
+        pathEnvCopy[sizeof(pathEnvCopy) - 1] = '\0'; // Ensure null-termination
+        char* path = strtok(pathEnvCopy, ":")
+        struct stat statbuf;
+        int found = 0;
+        
+        while (path != NULL) {
+            char fullPath[1024];
+            snprintf(fullPath, sizeof(fullPath), "%s/%s", path, args[1]);
+            if (stat(fullPath, &statbuf) == 0 && (statbuf.st_mode & S_IXUSR || statbuf.st_mode & S_IXGRP || statbuf.st_mode & S_IXOTH)) {
+                printf("%s\n", fullPath);
+                found = 1
+                break; // Stop after fiding the first occurrence
+            
+            path = strtok(NULL, ":");
+        }
+
+        // If the program was not found
+        if (!found) {
+            printf("%s: not found\n", args[1]);
+        }
         return 1;
     }
     return 0; // Not a built-in command
@@ -234,26 +264,44 @@ int executeCmd(char* buf){
 }
 
 int readInput(FILE *input, int fd) {
-    int buflength = 17;
-    char *buf = malloc(sizeof(char) * buflength); // Allocate once outside the loop
+    char *buf = malloc(sizeof(char) * 256);
     if (buf == NULL) {
         perror("malloc");
         return -1;
     }
+
     if (isatty(fd) == 1) {
         printf("Enter a command:\n");
     }
-    int bytes;
-    int pos = 0;
-    while(fgets(buf, 50, input) != NULL){
-        if(buf[0]=='e' && buf[1]=='x' && buf[2]=='i' && buf[3]=='t' && isatty(fd) 
-            && (buf[4]==' ' || buf[4]=='\n')){
-            printf("Exiting\n");
-            break; //temporary until built in commands are done
+    while (fgets(buf, 256, input) != NULL) {
+        char *tmpBuf = strdup(buf); // Duplicate buf for tokenization without modifying the original buf
+        if (!tmpBuf) {
+            perror("strdup");
+            break;
         }
-        executeCmd(buf);
+
+        char *args[15];
+        int argcount = 0;
+        char *token = strtok(tmpBuf, " \n");
+
+        while (token != NULL && argcount < 14) {
+            args[argcount++] = token;
+            token = strtok(NULL, " \n");
+        }
+        args[argcount] = NULL;
+
+        if (argcount > 0 && !handleBuiltInCommands(args[0], args)) {
+            executeCmd(buf); // Pass the original buffer directly
+        }
+
+        free(tmpBuf); // Free the duplicated buffer
+
+        if (isatty(fd) == 1) {
+            printf("Enter a command:\n");
+        }
     }
-    free(buf); // Free once after the loop ends
+
+    free(buf);
 }
 
 int main(int argc, char ** argv){
