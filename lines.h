@@ -1,0 +1,1 @@
+void read_lines(int fd, void (*use_line)(void *, char *), void *arg);

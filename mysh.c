@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "lines.h"
 
 int handleBuiltInCommands(char *cmd, char **args) {
     // List of built-in commands for comparison
@@ -65,7 +66,7 @@ int handleBuiltInCommands(char *cmd, char **args) {
 
 
 
-int executeCmd(char* buf){
+void executeCmd(void *st, char* buf){
     char* prog1in; //names of redirected input and output files
     char* prog1out;
     char* prog2in;
@@ -80,7 +81,7 @@ int executeCmd(char* buf){
     char* prog1 = malloc(strlen(token) + 1); // +1 for null terminator
     if (!prog1) {
         perror("malloc");
-        return -1;
+        //return -1;
     }
     strcpy(prog1, token);
     char *args[15]; // increases size directly, consider dynamic resizing if needed
@@ -132,7 +133,7 @@ int executeCmd(char* buf){
                     if (!args[argcount]) {
                         perror("malloc");
                         // free previously allocated memory here
-                        return -1;
+                        //return -1;
                     }
                     strcpy(args[argcount], argname);
                     argcount++;
@@ -146,7 +147,7 @@ int executeCmd(char* buf){
                 if (!args[argcount]) {
                     perror("malloc");
                     // free previously allocated memory here
-                    return -1;
+                    //return -1;
                 }
                 strcpy(args[argcount], token);
                 argcount++;
@@ -197,14 +198,13 @@ int executeCmd(char* buf){
                 token = strtok(NULL, " \n");
             }
             
-
         }
         else{
             args[argcount] = malloc(strlen(token) + 1); // +1 for null terminator
             if (!args[argcount]) {
                 perror("malloc");
                 // free previously allocated memory here
-                return -1;
+                //return -1;
             }
             strcpy(args[argcount], token);
             argcount++;
@@ -261,10 +261,15 @@ int executeCmd(char* buf){
     else if (child1 == -1){
         perror("fork");
     }
-    close(p[0]);
-    close(p[1]);
+    
     int wstatus1;
     int wstatus2;
+    pid_t wpid1;
+    pid_t wpid2;
+    //while ((wpid1 = wait(&wstatus1)) > 0);
+    //while ((wpid2 = wait(&wstatus2)) > 0);
+    close(p[0]);
+    close(p[1]);
     wait(&wstatus1);
     wait(&wstatus2);
 
@@ -273,9 +278,10 @@ int executeCmd(char* buf){
         if(args[i] != NULL) free(args[i]);
     }
     free(prog1);
+    printf("Enter a command:\n");
 
-    return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
-    return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
+    //return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
+    //return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
 }
 
 int readInput(FILE *input, int fd) {
@@ -288,35 +294,9 @@ int readInput(FILE *input, int fd) {
     if (isatty(fd) == 1) {
         printf("Enter a command:\n");
     }
-    while (fgets(buf, 256, input) != NULL) {
-        char *tmpBuf = strdup(buf); // Duplicate buf for tokenization without modifying the original buf
-        if (!tmpBuf) {
-            perror("strdup");
-            break;
-        }
-
-        char *args[15];
-        int argcount = 0;
-        char *token = strtok(tmpBuf, " \n");
-
-        while (token != NULL && argcount < 14) {
-            args[argcount++] = token;
-            token = strtok(NULL, " \n");
-        }
-        args[argcount] = NULL;
-
-        if (argcount > 0 && !handleBuiltInCommands(args[0], args)) {
-            executeCmd(buf); // Pass the original buffer directly
-        }
-
-        free(tmpBuf); // Free the duplicated buffer
-
-        if (isatty(fd) == 1) {
-            printf("Enter a command:\n");
-        }
-    }
-
-    free(buf);
+    int n=0;
+    read_lines(fd, executeCmd, &n);
+    
 }
 
 int main(int argc, char ** argv){

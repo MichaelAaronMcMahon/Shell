@@ -1,5 +1,3 @@
-argv[0]: argsprog
-argv[1]: abcd
-argv[2]: efgh
-argv[3]: ijkl
-argv[4]: mnop
+beginning of redir
+123 xyz abcd lmnop
+end of redir

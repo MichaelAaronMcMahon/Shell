@@ -1,6 +1,4 @@
 prog
 argsprog aaa bbb ccc
 argsprog foo/bar/quu*txt
-argsprog foo/bar/xyz*txt
-argsprog abcd efgh ijkl mnop > progout.txt
-redir < progin.txt
+
