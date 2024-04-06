@@ -234,7 +234,8 @@ int executeCmd(char* buf){
 }
 
 int readInput(FILE *input, int fd) {
-    char *buf = malloc(sizeof(char) * 50); // Allocate once outside the loop
+    int buflength = 17;
+    char *buf = malloc(sizeof(char) * buflength); // Allocate once outside the loop
     if (buf == NULL) {
         perror("malloc");
         return -1;
@@ -242,6 +243,8 @@ int readInput(FILE *input, int fd) {
     if (isatty(fd) == 1) {
         printf("Enter a command:\n");
     }
+    int bytes;
+    int pos = 0;
     while(fgets(buf, 50, input) != NULL){
         if(buf[0]=='e' && buf[1]=='x' && buf[2]=='i' && buf[3]=='t' && isatty(fd) 
             && (buf[4]==' ' || buf[4]=='\n')){
@@ -249,9 +252,6 @@ int readInput(FILE *input, int fd) {
             break; //temporary until built in commands are done
         }
         executeCmd(buf);
-        if (isatty(fd) == 1) {
-            printf("Enter a command:\n");
-        }
     }
     free(buf); // Free once after the loop ends
 }

@@ -1,1 +1,3 @@
-argsprog a b c | redir < p.txt
+argsprog a b c
+prog a aa aaa
+eeyeah yeah yeah
