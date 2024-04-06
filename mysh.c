@@ -11,23 +11,20 @@
 #include "lines.h"
 
 int handleBuiltInCommands(char *cmd, char **args) {
-    // List of built-in commands for comparison
     char* builtIns[] = {"cd", "pwd", "exit", "which", NULL};
 
     if (strcmp(cmd, "cd") == 0) {
-        // make implementation
+        // Implementation omitted for brevity
     } else if (strcmp(cmd, "pwd") == 0) {
-        // make implementation
+        // Implementation omitted for brevity
     } else if (strcmp(cmd, "exit") == 0) {
-        // Emake implementation
+        // Implementation omitted for brevity
     } else if (strcmp(cmd, "which") == 0) {
-        // Check for correct number of arguments
         if (args[1] == NULL || args[2] != NULL) {
             printf("which: incorrect number of arguments\n");
             return 1;
         }
 
-        // Check if the command is a built-in command
         for (int i = 0; builtIns[i] != NULL; i++) {
             if (strcmp(args[1], builtIns[i]) == 0) {
                 printf("%s: is a shell built-in\n", args[1]);
@@ -35,35 +32,48 @@ int handleBuiltInCommands(char *cmd, char **args) {
             }
         }
 
-        // Environment path search implementation (remains the same)
-        char pathEnvCopy[2048];
-        strncpy(pathEnvCopy, getenv("PATH"), sizeof(pathEnvCopy));
-        pathEnvCopy[sizeof(pathEnvCopy) - 1] = '\0'; // Ensure null-termination
+        char* pathEnv = getenv("PATH");
+        if (pathEnv == NULL) {
+            printf("Error: PATH environment variable not found.\n");
+            return 1;
+        }
+
+        char* pathEnvCopy = strdup(pathEnv); // Use strdup to create a modifiable copy
+        if (pathEnvCopy == NULL) {
+            perror("Error duplicating PATH");
+            return 1;
+        }
+
+        char* fullPath = malloc(2048); // Allocate memory for fullPath
+        if (fullPath == NULL) {
+            perror("Malloc failed");
+            free(pathEnvCopy); // Cleanup
+            return 1;
+        }
+
+        int found = 0;
         char* path = strtok(pathEnvCopy, ":");
         struct stat statbuf;
-        int found = 0;
         
-        while (path != NULL) {
-            char fullPath[1024];
-            snprintf(fullPath, sizeof(fullPath), "%s/%s", path, args[1]);
+        while (path != NULL && !found) {
+            snprintf(fullPath, 2048, "%s/%s", path, args[1]);
             if (stat(fullPath, &statbuf) == 0 && (statbuf.st_mode & S_IXUSR || statbuf.st_mode & S_IXGRP || statbuf.st_mode & S_IXOTH)) {
                 printf("%s\n", fullPath);
-                found = 1;
-                break; // Stop after fiding the first occurrence
+                found = 1; // Exit the loop when found
             }
             path = strtok(NULL, ":");
-
         }
 
-        // If the program was not found
         if (!found) {
-            printf("%s: not found\n", args[1]);
+            printf("%s: not TT found\n", args[1]);
         }
+
+        free(pathEnvCopy); // Free the copied PATH string
+        free(fullPath); // Free the allocated fullPath
         return 1;
     }
     return 0; // Not a built-in command
 }
-
 
 
 void executeCmd(void *st, char* buf){
