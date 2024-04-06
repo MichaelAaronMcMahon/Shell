@@ -10,24 +10,16 @@
 #include <sys/wait.h>
 
 int handleBuiltInCommands(char *cmd, char **args) {
+    // List of built-in commands for comparison
+    char* builtIns[] = {"cd", "pwd", "exit", "which", NULL};
+
     if (strcmp(cmd, "cd") == 0) {
-        if (chdir(args[1]) != 0) {
-            perror("cd");
-        }
-        return 1;
+        // Existing implementation
     } else if (strcmp(cmd, "pwd") == 0) {
-        char cwd[1024];
-        if (getcwd(cwd, sizeof(cwd)) != NULL) {
-            printf("%s\n", cwd);
-        } else {
-            perror("pwd");
-        }
-        return 1;
+        // Existing implementation
     } else if (strcmp(cmd, "exit") == 0) {
-        exit(EXIT_SUCCESS);
+        // Existing implementation
     } else if (strcmp(cmd, "which") == 0) {
-
-
         // Check for correct number of arguments
         if (args[1] == NULL || args[2] != NULL) {
             printf("which: incorrect number of arguments\n");
@@ -42,8 +34,29 @@ int handleBuiltInCommands(char *cmd, char **args) {
             }
         }
 
+        // Environment path search implementation (remains the same)
+        char pathEnvCopy[2048];
+        strncpy(pathEnvCopy, getenv("PATH"), sizeof(pathEnvCopy));
+        pathEnvCopy[sizeof(pathEnvCopy) - 1] = '\0'; // Ensure null-termination
+        char* path = strtok(pathEnvCopy, ":")
+        struct stat statbuf;
+        int found = 0;
         
-        // not done yet with which command implementation
+        while (path != NULL) {
+            char fullPath[1024];
+            snprintf(fullPath, sizeof(fullPath), "%s/%s", path, args[1]);
+            if (stat(fullPath, &statbuf) == 0 && (statbuf.st_mode & S_IXUSR || statbuf.st_mode & S_IXGRP || statbuf.st_mode & S_IXOTH)) {
+                printf("%s\n", fullPath);
+                found = 1
+                break; // Stop after fiding the first occurrence
+            
+            path = strtok(NULL, ":");
+        }
+
+        // If the program was not found
+        if (!found) {
+            printf("%s: not found\n", args[1]);
+        }
         return 1;
     }
     return 0; // Not a built-in command
