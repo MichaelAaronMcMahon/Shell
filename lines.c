@@ -86,6 +86,7 @@ void read_lines(int fd, void (*use_line)(void *, char *), void *arg)
     }
 
     free(buf);
+	
     
 }
 
@@ -105,3 +106,25 @@ void rev_line(void *st, char *line)
     }
     putchar('\n');
 }
+
+
+/*int main(int argc, char **argv)
+{
+    char *fname = argc > 1 ? argv[1] : "test.txt";
+
+    int fd = open(fname, O_RDONLY);
+    if (fd < 0) {
+	perror(fname);
+	exit(EXIT_FAILURE);
+    }
+
+    int n = 0;
+
+    read_lines(fd, print_line, &n);
+    //read_lines(fd, rev_line, NULL);
+    
+
+
+    return EXIT_SUCCESS;
+}
+*/

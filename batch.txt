@@ -1,4 +1,3 @@
 prog
-argsprog aaa bbb ccc
-argsprog foo/bar/quu*txt
-
+prog
+prog
