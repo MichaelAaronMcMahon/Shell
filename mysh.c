@@ -242,7 +242,43 @@ void executeCmd(void *st, char* buf){
             int fd = open(prog1out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
             dup2(fd, 1);
         }
-        execv(args[0], args); //executes prog1 with args array 
+        /*if(strstr(args[0], "/") == NULL && strcmp(args[0],"cd") != 0 && strcmp(args[0],"which") != 0 &&
+            strcmp(args[0],"pwd") != 0 && strcmp(args[0],"exit") != 0){
+            printf("%s\n", args[0]);
+            char* p1 = malloc(15+strlen(args[0]) + 1);
+            strcat(p1, "/usr/local/bin/");
+            strcat(p1, args[0]);
+            printf("%s\n", p1);
+            if(access(p1, F_OK) == 0){
+                execv(p1, args);
+            }
+            char* p2 = malloc(9+strlen(args[0]) + 1);
+            strcat(p2, "/usr/bin/");
+            strcat(p2, args[0]);
+            printf("%s\n", p2);
+            if(access(p2, F_OK) == 0){
+                execv(p2, args);
+            }
+            char* p3 = malloc(5+strlen(args[0]) + 1);
+            strcat(p3, "/bin/");
+            strcat(p3, args[0]);
+            printf("%s\n", p3);
+            if(access(p3, F_OK) == 0){
+                execv(p3, args);
+            }
+        }
+        else{
+            printf("args[0]: %s\n", args[0]);
+            execv(args[0], args); //executes prog1 with args array
+        }*/
+        if(handleBuiltInCommands(args[0], args)){
+            exit(0);      
+        }
+        else{
+            execv(args[0], args);
+        }
+        
+        //execv(args[0], args); //executes prog1 with args array 
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
@@ -296,7 +332,7 @@ void executeCmd(void *st, char* buf){
 }
 
 int readInput(FILE *input, int fd) {
-    char *buf = malloc(sizeof(char) * 256);
+    /*char *buf = malloc(sizeof(char) * 256);
     if (buf == NULL) {
         perror("malloc");
         return -1;
@@ -326,7 +362,7 @@ int readInput(FILE *input, int fd) {
             int n=0;
             read_lines(fd, executeCmd, &n);
         }
-    }
+    }*/
     int n=0;
     read_lines(fd, executeCmd, &n);
     
