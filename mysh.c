@@ -14,8 +14,23 @@ int handleBuiltInCommands(char *cmd, char **args) {
     char* builtIns[] = {"cd", "pwd", "exit", "which", NULL};
 
     if (strcmp(cmd, "cd") == 0) {
+        
+        if (args[1] == NULL || args[2] != NULL) {
+            // cd command requires exactly one argument (the directory path)
+            printf("cd: incorrect number of arguments\n");
+            return 1; // dislpay that the command was handled (even if there was an error)
+        }
+
+        if (chdir(args[1]) != 0) {
+            // chdir has failed, print the error message
+            perror("cd");
+            return 1; // comand was handled
+        }
+        return 1; // command successfully executed
         // Implementation omitted for brevity
+        
     } else if (strcmp(cmd, "pwd") == 0) {
+        
         // Implementation omitted for brevity
     } else if (strcmp(cmd, "exit") == 0) {
         // Implementation omitted for brevity
