@@ -308,18 +308,21 @@ int executeCmd(void *st, char* buf, int fd){
             if(access(p1, F_OK) == 0){
                 execv(p1, args);
             }
+            //free(p1);
             char* p2 = malloc(9+strlen(args[0]) + 1);
             strcat(p2, "/usr/bin/");
             strcat(p2, args[0]);
             if(access(p2, F_OK) == 0){
                 execv(p2, args);
             }
+            //free(p2);
             char* p3 = malloc(5+strlen(args[0]) + 1);
             strcat(p3, "/bin/");
             strcat(p3, args[0]);
             if(access(p3, F_OK) == 0){
                 execv(p3, args);
             }
+            //free(p3);
         }
         else{
             //printf("args[0]: %s\n", args[0]);
@@ -349,9 +352,8 @@ int executeCmd(void *st, char* buf, int fd){
                 dup2(fd, 1);
             }
             if(strstr(args[pipeIndex], "/") == NULL && strcmp(args[pipeIndex],"cd") != 0 && strcmp(args[pipeIndex],"which") != 0 &&
-                strcmp(args[pipeIndex],"pwd") != 0 && strcmp(args[pipeIndex],"exit") != 0){
-                    printf("here\n");
-                printf("%s\n", args[pipeIndex]);
+            strcmp(args[pipeIndex],"pwd") != 0 && strcmp(args[pipeIndex],"exit") != 0){
+                //printf("%s\n", args[pipeIndex]);
                 char* p1_2 = malloc(15+strlen(args[pipeIndex]) + 1);
                 strcat(p1_2, "/usr/local/bin/");
                 strcat(p1_2, args[pipeIndex]);
@@ -374,8 +376,9 @@ int executeCmd(void *st, char* buf, int fd){
             else{
                 execv(args[pipeIndex], args+pipeIndex); //executes prog2 with latter section of args array
             }
+            execv(args[pipeIndex], args+pipeIndex);
             perror("execv"); // this only reache if execv fails
-            exit(EXIT_FAILURE); // ensures child process exits if execv fails
+            exit(EXIT_FAILURE); // ensures child process exits if execv fails*/
         }
         //else if (child2 == -1){
         //    perror("fork");

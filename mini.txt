@@ -1,0 +1,2 @@
+./redir < progin.txt > progout.txt
+pip

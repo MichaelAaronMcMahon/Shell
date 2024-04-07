@@ -1,4 +1,3 @@
-argv[0]: argsprog
-argv[1]: a
-argv[2]: b
-argv[3]: c
+beginning of redir
+123 xyz abcd lmnop
+end of redir

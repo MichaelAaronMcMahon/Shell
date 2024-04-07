@@ -1,4 +1,20 @@
 ./prog
+./argsprog aaa bbb ccc
+./argsprog foo/bar/quu*txt
+./argsprog foo/bar/xyz*txt
+./argsprog abcd efgh ijkl mnop > progout.txt
+./redir < progin.txt
+./redir < progin.txt > progout.txt
 ./argsprog foo bar baz | ./redir
-pip --version
-which ls
+./foo/bar/dirprog abc def ghi
+gkjdnfblk
+then ./prog
+then ./prog
+./argsprog aaa bbb ccc
+then ./prog
+./prog
+else ./argsprog e f g
+else ./argsprog e f g
+sdafkgnjgl
+else ./argsprog e f g
+./argsprog this should be lost | ./redir < progin.txt
