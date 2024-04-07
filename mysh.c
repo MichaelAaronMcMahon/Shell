@@ -148,6 +148,7 @@ int executeCmd(void *st, char* buf, int fd){
         }
         else{
             printf("%s\n", prevFail);
+            if (isatty(fd)) printf("Enter a command: \n");
             return -1; //exits executeCmd if it did
         }
     }
@@ -157,6 +158,7 @@ int executeCmd(void *st, char* buf, int fd){
         }
         else{
             printf("%s\n", prevSuccess);
+            if (isatty(fd)) printf("Enter a command: \n");
             return -1; //exits if it didn't
         }
     }
@@ -315,7 +317,7 @@ int executeCmd(void *st, char* buf, int fd){
             dup2(fd, 1);
         }
         //printf("args[0]: %s\n", args[0]);
-        if(strstr(args[0], "/") == NULL && strcmp(args[0],"cd") != 0 && strcmp(args[0],"which") != 0 &&
+        /*if(strstr(args[0], "/") == NULL && strcmp(args[0],"cd") != 0 && strcmp(args[0],"which") != 0 &&
             strcmp(args[0],"pwd") != 0 && strcmp(args[0],"exit") != 0){
             char* p1 = malloc(15+strlen(args[0]) + 1);
             p1mal=1;
@@ -344,9 +346,9 @@ int executeCmd(void *st, char* buf, int fd){
         else{
             //printf("args[0]: %s\n", args[0]);
             execv(args[0], args); //executes prog1 with args array
-        }
+        }*/
         
-        //execv(args[0], args); //executes prog1 with args array 
+        execv(args[0], args); //executes prog1 with args array 
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
