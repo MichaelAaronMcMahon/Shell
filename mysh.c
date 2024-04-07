@@ -75,9 +75,12 @@ int handleBuiltInCommands(char *cmd, char **args) {
     return 0; // Not a built-in command
 }
 
+int lastCmd[2] = {0,0}; //exit statuses of the two processes are stored here to be referenced in the next command
 
-void executeCmd(void *st, char* buf){
+int executeCmd(void *st, char* buf){
     
+    //printf("lastCmd[0]: %d\n", lastCmd[0]);
+    //printf("lastCmd[1]: %d\n", lastCmd[1]);
     char* prog1in; //names of redirected input and output files
     char* prog1out;
     char* prog2in;
@@ -89,10 +92,30 @@ void executeCmd(void *st, char* buf){
     int piping = 0;
     int pipeIndex = 0;
     char* token = strtok(buf, " \n");
+    char* prevFail = "Previous command failed, command not executed.";
+    char* prevSuccess = "Previous command succeeded, command not executed.";
+    if(strcmp(token, "then") == 0){ //checks for then conditional
+        if(lastCmd[0] != 1 && lastCmd[1] != 1){ //checks if the previous command failed
+            token = strtok(NULL, " \n"); //proceeds with command if it didn't
+        }
+        else{
+            printf("%s\n", prevFail);
+            return -1; //exits executeCmd if it did
+        }
+    }
+    if(strcmp(token, "else") == 0){ //checks for else conditional
+        if(lastCmd[0] == 1 || lastCmd[1] == 1){ //checks if the previous command failed
+            token = strtok(NULL, " \n"); //proceeds if it did
+        }
+        else{
+            printf("%s\n", prevSuccess);
+            return -1; //exits if it didn't
+        }
+    }
     char* prog1 = malloc(strlen(token) + 1); // +1 for null terminator
     if (!prog1) {
         perror("malloc");
-        //return -1;
+        return -1;
     }
     strcpy(prog1, token);
     char *args[15]; // increases size directly, consider dynamic resizing if needed
@@ -226,11 +249,8 @@ void executeCmd(void *st, char* buf){
     int p[2];
     pipe(p); //sets up pipe
     int p1mal=0;
-    pid_t child1 = fork(); //process for prog1
     
-    if(child1==0){
-        //dup2(0,0);
-        //dup2(1,1);
+    if(fork() == 0){
         if(handleBuiltInCommands(args[0], args)){
             exit(0);      
         }
@@ -246,14 +266,14 @@ void executeCmd(void *st, char* buf){
             int fd = open(prog1out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
             dup2(fd, 1);
         }
-        printf("args[0]: %s\n", args[0]);
+        //printf("args[0]: %s\n", args[0]);
         if(strstr(args[0], "/") == NULL && strcmp(args[0],"cd") != 0 && strcmp(args[0],"which") != 0 &&
             strcmp(args[0],"pwd") != 0 && strcmp(args[0],"exit") != 0){
             char* p1 = malloc(15+strlen(args[0]) + 1);
             p1mal=1;
             strcat(p1, "/usr/local/bin/");
             strcat(p1, args[0]);
-            printf("%s\n", p1);
+            //printf("%s\n", p1);
             if(access(p1, F_OK) == 0){
                 execv(p1, args);
             }
@@ -279,11 +299,14 @@ void executeCmd(void *st, char* buf){
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
+    //else{
+    //    perror("fork");
+   // }
 
-    pid_t child2 = fork(); //process for prog2
+    //pid_t child2 = fork(); //process for prog2
     if(piping==1){
-        if(child2 == 0){
-            printf("p1mal: %d\n", p1mal);
+        if(fork() == 0){
+            //printf("p1mal: %d\n", p1mal);
             close(p[1]);
             dup2(p[0], 0); //sets input to read end of pipe
             if(p2in == 1){ //redirect standard input
@@ -294,7 +317,7 @@ void executeCmd(void *st, char* buf){
                 int fd = open(prog2out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
                 dup2(fd, 1);
             }
-            /*if(strstr(args[pipeIndex], "/") == NULL && strcmp(args[pipeIndex],"cd") != 0 && strcmp(args[pipeIndex],"which") != 0 &&
+            if(strstr(args[pipeIndex], "/") == NULL && strcmp(args[pipeIndex],"cd") != 0 && strcmp(args[pipeIndex],"which") != 0 &&
                 strcmp(args[pipeIndex],"pwd") != 0 && strcmp(args[pipeIndex],"exit") != 0){
                     printf("here\n");
                 printf("%s\n", args[pipeIndex]);
@@ -317,40 +340,41 @@ void executeCmd(void *st, char* buf){
                     execv(p3_2, args+pipeIndex);
                 }
             }
-            else{*/
-            execv(args[pipeIndex], args+pipeIndex); //executes prog2 with latter section of args array
-            //}
-            
+            else{
+                execv(args[pipeIndex], args+pipeIndex); //executes prog2 with latter section of args array
+            }
             perror("execv"); // this only reache if execv fails
             exit(EXIT_FAILURE); // ensures child process exits if execv fails
         }
-        else if (child2 == -1){
-            perror("fork");
-        }
+        //else if (child2 == -1){
+        //    perror("fork");
+       // }
     }
-    else if (child1 == -1){
-        perror("fork");
-    }
+   // else if (child1 == -1){
+   //     perror("fork");
+   // }
     
     int wstatus1;
     int wstatus2;
     pid_t wpid1;
     pid_t wpid2;
-    //while ((wpid1 = wait(&wstatus1)) > 0);
-    //while ((wpid2 = wait(&wstatus2)) > 0);
     close(p[0]);
     close(p[1]);
     wait(&wstatus1);
     wait(&wstatus2);
-    // Free allocated memory
     for(int i = 1; i < argcount; i++){ // start from 1, prog1 is args[0]
         if(args[i] != NULL) free(args[i]);
     }
     free(prog1);
-    printf("Enter a command:\n");
-
-    //return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
-    //return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
+    //printf("Enter a command:\n");
+    //printf("%d\n", WEXITSTATUS(wstatus1));
+    //printf("%d\n", WEXITSTATUS(wstatus2));
+    lastCmd[0] = WEXITSTATUS(wstatus1);
+    lastCmd[1] = WEXITSTATUS(wstatus2);
+    
+    return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
+    return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
+    
 }
 
 int readInput(FILE *input, int fd) {
@@ -386,6 +410,7 @@ int readInput(FILE *input, int fd) {
         }
     }*/
     int n=0;
+    //moved handleBuiltInCommands call to executeCmd
     read_lines(fd, executeCmd, &n);
     
 }

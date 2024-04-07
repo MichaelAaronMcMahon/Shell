@@ -26,7 +26,7 @@
 #define BUFLENGTH 16
 #endif
 
-void read_lines(int fd, void (*use_line)(void *, char *), void *arg)
+void read_lines(int fd, int (*use_line)(void *, char *), void *arg)
 {
     int buflength = BUFLENGTH;
     char *buf = malloc(BUFLENGTH);
@@ -48,6 +48,7 @@ void read_lines(int fd, void (*use_line)(void *, char *), void *arg)
 		// we found a line, starting at line_start ending before pos
 		buf[pos] = '\0';
 		use_line(arg, buf + line_start);
+		//printf("%d\n", use_line(arg, buf + line_start));
 
 		line_start = pos + 1;
 	    }
@@ -83,6 +84,7 @@ void read_lines(int fd, void (*use_line)(void *, char *), void *arg)
 	}
 	buf[pos] = '\0';
 	use_line(arg, buf + line_start);
+	//printf("%d\n", use_line(arg, buf + line_start));
     }
 
     free(buf);
@@ -106,7 +108,6 @@ void rev_line(void *st, char *line)
     }
     putchar('\n');
 }
-
 /*
 int main(int argc, char **argv)
 {
@@ -120,7 +121,7 @@ int main(int argc, char **argv)
 
     int n = 0;
 
-    read_lines(fd, print_line, &n);
+    //read_lines(fd, print_line, &n);
     //read_lines(fd, rev_line, NULL);
     
 
