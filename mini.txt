@@ -1,2 +1,2 @@
-./redir < progin.txt > progout.txt
-pip
+./prog
+./argsprog aaa bbb ccc

@@ -25,6 +25,7 @@
 #ifndef BUFLENGTH
 #define BUFLENGTH 16
 #endif
+int exitFlag = 1;
 
 void read_lines(int fd, int (*use_line)(void *, char *, int fd), void *arg)
 {
@@ -34,12 +35,15 @@ void read_lines(int fd, int (*use_line)(void *, char *, int fd), void *arg)
     int pos = 0;
     int bytes;
     int line_start;
+	
 
     while ((bytes = read(fd, buf + pos, buflength - pos)) > 0) {
 	if (DEBUG) printf("read %d bytes; pos=%d\n", bytes, pos);
 
 	line_start = 0;
 	int bufend = pos + bytes;
+	//if(exitFlag == 0) break;
+	
 
 	while (pos < bufend) {
 	    if (DEBUG) printf("start %d, pos %d, char '%c'\n", line_start, pos, buf[pos]);
@@ -47,13 +51,18 @@ void read_lines(int fd, int (*use_line)(void *, char *, int fd), void *arg)
 	    if (buf[pos] == '\n') {
 		// we found a line, starting at line_start ending before pos
 		buf[pos] = '\0';
-		use_line(arg, buf + line_start, fd);
+		exitFlag = use_line(arg, buf + line_start, fd);
+		if (exitFlag == 0 && isatty(fd)) {
+			printf("Exiting\n");
+			break;
+		}
 		//printf("%d\n", use_line(arg, buf + line_start));
 
 		line_start = pos + 1;
 	    }
 	    pos++;
 	}
+	if (exitFlag == 0 && isatty(fd)) break;
 
 	// no partial line
 	if (line_start == pos) {
@@ -83,7 +92,7 @@ void read_lines(int fd, int (*use_line)(void *, char *, int fd), void *arg)
 	    buf = realloc(buf, buflength + 1);
 	}
 	buf[pos] = '\0';
-	use_line(arg, buf + line_start, fd);
+	exitFlag = use_line(arg, buf + line_start, fd);
 	//printf("%d\n", use_line(arg, buf + line_start));
     }
 

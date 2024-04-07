@@ -139,6 +139,9 @@ int executeCmd(void *st, char* buf, int fd){
     char* token = strtok(buf, " \n");
     char* prevFail = "Previous command failed, command not executed.";
     char* prevSuccess = "Previous command succeeded, command not executed.";
+    if(token[0]=='e' && token[1]=='x' && token[2]=='i' && token[3]=='t' && isatty(fd)){
+        return 0; //temporary until built in commands are done
+    }
     if(strcmp(token, "then") == 0){ //checks for then conditional
         if(lastCmd[0] != 1 && lastCmd[1] != 1){ //checks if the previous command failed
             token = strtok(NULL, " \n"); //proceeds with command if it didn't
@@ -423,8 +426,9 @@ int executeCmd(void *st, char* buf, int fd){
         printf("Enter a command: \n");
     }
     
-    return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
-    return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
+    //return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
+    //return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
+
     
 }
 
