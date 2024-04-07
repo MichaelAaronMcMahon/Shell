@@ -205,6 +205,13 @@ end of redir
 
 
 
+Test 14: Built-in Commands(pwd): Tests if pwd correctly prints the current working directory. No special preparation needed for this; simply compile with the makefile, run the program using './mysh',run pwd, and expect the current directory as output.
+ Commands;
+ 1. ./mysh
+ 2. pwd
+
+
+
 ---Bare names---
 As of right now bare name commands cause problems with pipe commands when run in the same interactive session
 or from the same batch file. Testing these cases upon running ./mysh afresh work, however.
