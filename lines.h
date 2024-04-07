@@ -1,1 +1,1 @@
-void read_lines(int fd, int (*use_line)(void *, char *), void *arg);
+void read_lines(int fd, int (*use_line)(void *, char *, int fd), void *arg);

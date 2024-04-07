@@ -1,3 +1,4 @@
 ./prog
 ./argsprog foo bar baz | ./redir
+pip --version
 which ls

@@ -107,10 +107,11 @@ int handleBuiltInCommands(char *cmd, char **args) {
 
 int lastCmd[2] = {0,0}; //exit statuses of the two processes are stored here to be referenced in the next command
 
-int executeCmd(void *st, char* buf){
+int executeCmd(void *st, char* buf, int fd){
     
     //printf("lastCmd[0]: %d\n", lastCmd[0]);
     //printf("lastCmd[1]: %d\n", lastCmd[1]);
+    
     char* prog1in; //names of redirected input and output files
     char* prog1out;
     char* prog2in;
@@ -401,6 +402,9 @@ int executeCmd(void *st, char* buf){
     //printf("%d\n", WEXITSTATUS(wstatus2));
     lastCmd[0] = WEXITSTATUS(wstatus1);
     lastCmd[1] = WEXITSTATUS(wstatus2);
+    if(isatty(fd) == 1){
+        printf("Enter a command: \n");
+    }
     
     return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
     return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
@@ -460,6 +464,7 @@ int main(int argc, char ** argv){
     }
     if(isatty(fd) == 1){
         printf("Welcome to My Shell\n");
+        printf("Enter a command: \n");
     }
     readInput(input, fd);
     return 0;
