@@ -225,11 +225,15 @@ void executeCmd(void *st, char* buf){
     args[argcount] = NULL; // null-termiate the argument list
     int p[2];
     pipe(p); //sets up pipe
+    int p1mal=0;
     pid_t child1 = fork(); //process for prog1
     
     if(child1==0){
         //dup2(0,0);
         //dup2(1,1);
+        if(handleBuiltInCommands(args[0], args)){
+            exit(0);      
+        }
         if(piping==1){
             close(p[0]);
             dup2(p[1], 1); //sets prog1's output to the write end of the pipe
@@ -242,10 +246,11 @@ void executeCmd(void *st, char* buf){
             int fd = open(prog1out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
             dup2(fd, 1);
         }
-        /*if(strstr(args[0], "/") == NULL && strcmp(args[0],"cd") != 0 && strcmp(args[0],"which") != 0 &&
+        printf("args[0]: %s\n", args[0]);
+        if(strstr(args[0], "/") == NULL && strcmp(args[0],"cd") != 0 && strcmp(args[0],"which") != 0 &&
             strcmp(args[0],"pwd") != 0 && strcmp(args[0],"exit") != 0){
-            printf("%s\n", args[0]);
             char* p1 = malloc(15+strlen(args[0]) + 1);
+            p1mal=1;
             strcat(p1, "/usr/local/bin/");
             strcat(p1, args[0]);
             printf("%s\n", p1);
@@ -255,38 +260,30 @@ void executeCmd(void *st, char* buf){
             char* p2 = malloc(9+strlen(args[0]) + 1);
             strcat(p2, "/usr/bin/");
             strcat(p2, args[0]);
-            printf("%s\n", p2);
             if(access(p2, F_OK) == 0){
                 execv(p2, args);
             }
             char* p3 = malloc(5+strlen(args[0]) + 1);
             strcat(p3, "/bin/");
             strcat(p3, args[0]);
-            printf("%s\n", p3);
             if(access(p3, F_OK) == 0){
                 execv(p3, args);
             }
         }
         else{
-            printf("args[0]: %s\n", args[0]);
+            //printf("args[0]: %s\n", args[0]);
             execv(args[0], args); //executes prog1 with args array
-        }*/
-        if(handleBuiltInCommands(args[0], args)){
-            exit(0);      
-        }
-        else{
-            execv(args[0], args);
         }
         
         //execv(args[0], args); //executes prog1 with args array 
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
+
     pid_t child2 = fork(); //process for prog2
     if(piping==1){
         if(child2 == 0){
-            //dup2(0,0);
-            //dup2(1,1);
+            printf("p1mal: %d\n", p1mal);
             close(p[1]);
             dup2(p[0], 0); //sets input to read end of pipe
             if(p2in == 1){ //redirect standard input
@@ -297,7 +294,33 @@ void executeCmd(void *st, char* buf){
                 int fd = open(prog2out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
                 dup2(fd, 1);
             }
+            /*if(strstr(args[pipeIndex], "/") == NULL && strcmp(args[pipeIndex],"cd") != 0 && strcmp(args[pipeIndex],"which") != 0 &&
+                strcmp(args[pipeIndex],"pwd") != 0 && strcmp(args[pipeIndex],"exit") != 0){
+                    printf("here\n");
+                printf("%s\n", args[pipeIndex]);
+                char* p1_2 = malloc(15+strlen(args[pipeIndex]) + 1);
+                strcat(p1_2, "/usr/local/bin/");
+                strcat(p1_2, args[pipeIndex]);
+                if(access(p1_2, F_OK) == 0){
+                    execv(p1_2, args+pipeIndex);
+                }
+                char* p2_2 = malloc(9+strlen(args[pipeIndex]) + 1);
+                strcat(p2_2, "/usr/bin/");
+                strcat(p2_2, args[pipeIndex]);
+                if(access(p2_2, F_OK) == 0){
+                    execv(p2_2, args+pipeIndex);
+                }
+                char* p3_2 = malloc(5+strlen(args[pipeIndex]) + 1);
+                strcat(p3_2, "/bin/");
+                strcat(p3_2, args[pipeIndex]);
+                if(access(p3_2, F_OK) == 0){
+                    execv(p3_2, args+pipeIndex);
+                }
+            }
+            else{*/
             execv(args[pipeIndex], args+pipeIndex); //executes prog2 with latter section of args array
+            //}
+            
             perror("execv"); // this only reache if execv fails
             exit(EXIT_FAILURE); // ensures child process exits if execv fails
         }
@@ -319,7 +342,6 @@ void executeCmd(void *st, char* buf){
     close(p[1]);
     wait(&wstatus1);
     wait(&wstatus2);
-
     // Free allocated memory
     for(int i = 1; i < argcount; i++){ // start from 1, prog1 is args[0]
         if(args[i] != NULL) free(args[i]);
