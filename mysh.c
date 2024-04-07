@@ -48,6 +48,20 @@ int handleBuiltInCommands(char *cmd, char **args) {
         
         // Implementation omitted for brevity
     } else if (strcmp(cmd, "exit") == 0) {
+
+        // print any arguments received with the exit command
+        if (args[1] != NULL) {
+            printf("Exiting: ");
+            for (int i = 1; args[i] != NULL; i++) {
+                printf("%s ", args[i]);
+            }
+            printf("\n");
+        } else {
+            printf("Exiting.\n");
+        }
+        exit(EXIT_SUCCESS); // EXIT_SUCCESS shows successful termination
+    }
+    
         // Implementation omitted for brevity
     } else if (strcmp(cmd, "which") == 0) {
         if (args[1] == NULL || args[2] != NULL) {
