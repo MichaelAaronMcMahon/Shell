@@ -60,7 +60,7 @@ int handleBuiltInCommands(char *cmd, char **args) {
             printf("Exiting.\n");
         }
         exit(EXIT_SUCCESS); // EXIT_SUCCESS shows successful termination
-    }
+    
     
         // Implementation omitted for brevity
     } else if (strcmp(cmd, "which") == 0) {
