@@ -209,6 +209,8 @@ Test 13: Built-in Commands(pwd): Tests if pwd correctly prints the current worki
  1. ./mysh
  2. pwd
 
+For error handling, we tried to run pwd with a command after it to confirm the error message we put in the program would a pead (which it does)
+
 Test 14: Built-in Commands(cd): The goal of this test was to verify the shell's cd command functionality by changing directories within the shell environment and using pwd to display the current directory to ensure the changes took effect. The test involves navigating into a subdirectory, moving back up the directory tree, and then moving back into the original directory.
 
 Environment Setup:
@@ -240,8 +242,35 @@ Command: cd CS214 then pwd
 Expected Output: /common/home/amg610/CS214
 Result: The shell's cd functionality allows for expected directory navigation, demonstrating its correct implementation.
 
+We then checked for the error handling by trying to use change directory into a directory what did not exist (Which worked). We also tried to use cd when there where no argument as well as when there were two or more arguments ('cd' , 'cd myShell testFol' , etc.). We were met with an error message just as programmed.
 
-Test
+
+Test 15: Built-in Commands(which): Test the which command functionality in a custom shell to verify it can accurately identify the location of executables within the system's PATH.  which is used to locate a command by searching the directories listed in the environment's PATH variable. It should return the path of the executable file if found.
+
+Environment Setup and Test Execution:
+
+Create Test Program
+
+A program, prog.c, is prepared and compiled. This step ensures there is an executable to search for.
+Make Executable Globally Accessible for the Session
+
+Commands used:
+bash
+Copy code
+gcc prog.c -o prog
+chmod +x prog
+mkdir -p $HOME/bin
+export PATH=$PATH:$HOME/bin
+These commands compile prog.c to an executable prog, make it executable, ensure there's a bin directory in the home directory, and add this bin directory to the session's PATH. This setup mimics making prog globally accessible.
+Testing which Command
+
+After compiling mysh.c and starting the custom shell with ./mysh, the which prog command is issued.
+Expected Output: The path to the prog executable for the session, e.g., /common/home/amg610/bin/prog. This confirms which successfully locates executables within the PATH.
+Error Handling Tests:
+
+No Arguments: Running which without any arguments should prompt an error message indicating the incorrect number of arguments.
+Multiple Arguments: Similar error handling for multiple arguments to ensure only one argument is accepted.
+Non-existent Command: Before adding prog to the PATH, which prog should return an error or indicate that prog is not found, verifying that which only locates programs within the PATH.
 
 
 
