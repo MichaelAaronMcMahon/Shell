@@ -296,6 +296,20 @@ int executeCmd(void *st, char* buf, int fd){
         }
     }
     args[argcount] = NULL; // null-termiate the argument list
+    if(strcmp(args[0], "cd") == 0){
+        token = strtok(NULL, " \n");
+        if(argcount > 2){
+            printf("chdir: too many arguments\n");
+            printf("Enter a command: \n");
+            return 1;
+        }
+        else{
+            int cdstat = chdir(args[1]);
+            if(cdstat == -1) printf("chdir error");
+            printf("Enter a command: \n");
+            return 1;
+        }
+    }
     int p[2];
     pipe(p); //sets up pipe
     int p1mal=0;

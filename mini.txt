@@ -1,2 +1,2 @@
-./prog
-./argsprog aaa bbb ccc
+./argsprog foo bar baz | ./redir
+pip
