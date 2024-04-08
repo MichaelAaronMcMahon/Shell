@@ -6,6 +6,9 @@
 ./redir < progin.txt
 ./redir < progin.txt > progout.txt
 ./argsprog foo bar baz | ./redir
+pip --version
+texplate
+ciptool
 ./foo/bar/dirprog abc def ghi
 gkjdnfblk
 then ./prog

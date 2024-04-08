@@ -120,6 +120,8 @@ int handleBuiltInCommands(char *cmd, char **args) {
 }
 
 int lastCmd[2] = {0,0}; //exit statuses of the two processes are stored here to be referenced in the next command
+char* ulb = "/usr/local/bin/";
+int p1mal=0;
 
 int executeCmd(void *st, char* buf, int fd){
     
@@ -312,7 +314,7 @@ int executeCmd(void *st, char* buf, int fd){
     }
     int p[2];
     pipe(p); //sets up pipe
-    int p1mal=0;
+    
     
     if(fork() == 0){
         if(handleBuiltInCommands(args[0], args)){
@@ -331,36 +333,55 @@ int executeCmd(void *st, char* buf, int fd){
             dup2(fd, 1);
         }
         //printf("args[0]: %s\n", args[0]);
-        /*if(strstr(args[0], "/") == NULL && strcmp(args[0],"cd") != 0 && strcmp(args[0],"which") != 0 &&
-            strcmp(args[0],"pwd") != 0 && strcmp(args[0],"exit") != 0){
+        if(strstr(args[0], "/") == NULL){
+            //printf("args[0]: %s\n", args[0]);
+            printf("\n");
+            //printf("p1mal: %d\n", p1mal);
+            //printf("strlen(args[0]): %ld\n", strlen(args[0]));
             char* p1 = malloc(15+strlen(args[0]) + 1);
-            p1mal=1;
-            strcat(p1, "/usr/local/bin/");
+            //p1mal=1;
+            strcat(p1, ulb);
             strcat(p1, args[0]);
-            //printf("%s\n", p1);
-            if(access(p1, F_OK) == 0){
-                execv(p1, args);
+            
+            //printf("p1: %s\n", p1);
+            //printf("p1+333: %s\n", p1 + (strlen(p1) - 15 - strlen(args[0])));
+            char *p1fix = p1 + (strlen(p1) - 15 - strlen(args[0]));
+            //printf("p1fix: %s\n", p1fix);
+            
+            if(access(p1fix, F_OK) == 0){
+                args[0] = p1fix;
+                execv(p1fix, args);
             }
             //free(p1);
+            
             char* p2 = malloc(9+strlen(args[0]) + 1);
             strcat(p2, "/usr/bin/");
             strcat(p2, args[0]);
-            if(access(p2, F_OK) == 0){
-                execv(p2, args);
+            
+            //printf("p2: %s\n", p2);
+            char *p2fix = p2 + (strlen(p2) - 9 - strlen(args[0]));
+            
+            //printf("p2fix: %s\n", p2fix);
+            if(access(p2fix, F_OK) == 0){
+                args[0] = p2fix;
+                execv(p2fix, args);
             }
             //free(p2);
             char* p3 = malloc(5+strlen(args[0]) + 1);
             strcat(p3, "/bin/");
             strcat(p3, args[0]);
-            if(access(p3, F_OK) == 0){
-                execv(p3, args);
+            char *p3fix = p3 + (strlen(p3) - 5 - strlen(args[0]));
+            
+            if(access(p3fix, F_OK) == 0){
+                args[0] = p3fix;
+                execv(p3fix, args);
             }
             //free(p3);
         }
         else{
             //printf("args[0]: %s\n", args[0]);
             execv(args[0], args); //executes prog1 with args array
-        }*/
+        }
         
         execv(args[0], args); //executes prog1 with args array 
         perror("execv"); // this only reache if execv fails
@@ -384,7 +405,7 @@ int executeCmd(void *st, char* buf, int fd){
                 int fd = open(prog2out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
                 dup2(fd, 1);
             }
-            if(strstr(args[pipeIndex], "/") == NULL && strcmp(args[pipeIndex],"cd") != 0 && strcmp(args[pipeIndex],"which") != 0 &&
+            /*if(strstr(args[pipeIndex], "/") == NULL && strcmp(args[pipeIndex],"cd") != 0 && strcmp(args[pipeIndex],"which") != 0 &&
             strcmp(args[pipeIndex],"pwd") != 0 && strcmp(args[pipeIndex],"exit") != 0){
                 //printf("%s\n", args[pipeIndex]);
                 char* p1_2 = malloc(15+strlen(args[pipeIndex]) + 1);
@@ -408,7 +429,7 @@ int executeCmd(void *st, char* buf, int fd){
             }
             else{
                 execv(args[pipeIndex], args+pipeIndex); //executes prog2 with latter section of args array
-            }
+            }*/
             execv(args[pipeIndex], args+pipeIndex);
             perror("execv"); // this only reache if execv fails
             exit(EXIT_FAILURE); // ensures child process exits if execv fails*/
