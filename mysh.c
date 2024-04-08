@@ -315,7 +315,6 @@ int executeCmd(void *st, char* buf, int fd){
     int p[2];
     pipe(p); //sets up pipe
     
-    
     if(fork() == 0){
         if(handleBuiltInCommands(args[0], args)){
             exit(0);      
@@ -387,9 +386,9 @@ int executeCmd(void *st, char* buf, int fd){
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
-    //else{
-    //    perror("fork");
-   // }
+    else{
+        perror("fork");
+    }
 
     //pid_t child2 = fork(); //process for prog2
     if(piping==1){

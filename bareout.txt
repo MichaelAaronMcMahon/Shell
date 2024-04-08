@@ -1,0 +1,2 @@
+
+pip 23.1.2 from /usr/local/lib/python3.10/dist-packages/pip (python 3.10)

@@ -8,14 +8,14 @@ Tests 1-15: Interactive mode: Upon running mysh without any commands, it is expe
 "Enter a command: " before each command. Start the program with ./mysh and then enter each of the commands under "input" to test each case
 in interactive mode. 
 
-Test1: Mysh executes a program
+Test 1: Mysh executes a program
 When given the name of an executable program, mysh runs it. Gives mysh the name prog, a program which prints the string "prog executed".
 input: 
 ./prog
 expected output (in the terminal):
 prog executed 
 
-Test2: Mysh executes a program with arguments
+Test 2: Mysh executes a program with arguments
 When given the name of an executable program that takes arguments and space separated arguments, mysh runs it with those arguments. 
 Gives mysh the name argsprog and a list of the arguments aaa bbb ccc, a program which prints its arguments in the format "argv[1]: aaa"
 input:
@@ -88,7 +88,80 @@ argv[3]: baz
 
 end of redir
 
-Test9: mysh can run programs within subdirectories
+Test 9: mysh takes bare names as program names and searches for them in /usr/local/bin, /usr/bin and /bin in that order
+Attempts to find and run pip with the argument "--version" in /usr/local/bin
+input:
+pip --version > pipout.txt
+expected output (in pipout.txt):
+pip 23.1.2 from /usr/local/lib/python3.10/dist-packages/pip (python 3.10)
+
+Test 10: mysh takes bare names as program names and searches for them in /usr/local/bin, /usr/bin and /bin in that order
+Attempts to find and run texplate in /usr/bin
+input:
+texplate 
+expected output (in tpout.txt):
+ ______         __   __          ___             __             
+/\__  _\       /\ \ /\ \        /\_ \           /\ \__          
+\/_/\ \/    __ \ `\`\/'/'  _____\//\ \      __  \ \ ,_\    __   
+   \ \ \  /'__`\`\/ > <   /\ '__`\\ \ \   /'__`\ \ \ \/  /'__`\ 
+    \ \ \/\  __/   \/'/\`\\ \ \L\ \\_\ \_/\ \L\.\_\ \ \_/\  __/ 
+     \ \_\ \____\  /\_\\ \_\ \ ,__//\____\ \__/.\_\\ \__\ \____\
+      \/_/\/____/  \/_/ \/_/\ \ \/ \/____/\/__/\/_/ \/__/\/____/
+                             \ \_\                              
+                              \/_/                              
+
+TeXplate 1.0.4, a document structure creation tool
+Copyright (c) 2024, Island of TeX
+All rights reserved.
+
+Missing required option: '--output=<output>'
+Usage: texplate [-c=<configuration>] -o=<output> [-t=<template>]
+                [-m=<String=String>...]...
+  -c, --config=<configuration>
+                          The configuration file in which the tool
+                            can read template data, for automation
+                            purposes. Make sure to follow the correct
+                            specification when writing a
+                            configuration file.
+  -m, --map=<String=String>...
+                          The contextual map that provides the data
+                            to be merged in the template. This
+                            parameter can be used multiple times. You
+                            can specify a map entry with the
+                            key=value syntax (mind the entry
+                            separator).
+  -o, --output=<output>   The output file in which the chosen
+                            template will be effectively written.
+                            Make sure the directory has the correct
+                            permissions for writing the output file.
+  -t, --template=<template>
+                          The name of the template. The tool will
+                            search both user and system locations and
+                            set the template model accordingly, based
+                            on your specs.
+
+Test 11: mysh takes bare names as program names and searches for them in /usr/local/bin, /usr/bin and /bin in that order
+Attempts to find and run ciptool in /bin
+input:
+ciptool
+expected output (in the terminal):
+ciptool - Bluetooth Common ISDN Access Profile (CIP)
+
+Usage:
+        ciptool [options] [command]
+
+Options:
+        -i [hciX|bdaddr]   Local HCI device or BD Address
+        -h, --help         Display help
+
+Commands:
+        show                    Show remote connections
+        search                  Search for a remote device
+        connect  <bdaddr>       Connect a remote device
+        release  [bdaddr]       Disconnect the remote device
+        loopback <bdaddr>       Loopback test of a device
+
+Test 12: mysh can run programs within subdirectories
 Tests that mysh accepts pathnames with subdirectories as program names and runs the program correctly
 dirprog: a program in ./foo/bar which prints the first character of each of its arguments.
 input:
@@ -99,7 +172,7 @@ a
 d
 g
 
-Test 10: Conditional statements: Commands starting with the "then" keyword only execute if the previous command succeeded. 
+Test 13: Conditional statements: Commands starting with the "then" keyword only execute if the previous command succeeded. 
 If a conditional command is not executed, the previous exit status remains unchanged.
 Enter a command that will fail and then a command beginning with "then". Then enter the same command again, showing that conditional commands not
 executing don't change the previous exit status. Then run a successful command, then run a command beginning with "then".
@@ -119,7 +192,7 @@ argv[2]: bbb
 argv[3]: ccc
 prog executed
 
-Test 11: Conditional statements: Commands starting with the "else" keyword only execute if the previous command failed. 
+Test 14: Conditional statements: Commands starting with the "else" keyword only execute if the previous command failed. 
 If a conditional command is not executed, the previous exit status remains unchanged.
 Enter a command that will succeed and then a command beginning with "else". Then enter the same command again, showing that conditional commands not
 executing don't change the previous exit status. Then run a failing command, then run a command beginning with "else".
@@ -139,7 +212,7 @@ argv[1]: e
 argv[2]: f
 argv[3]: g
 
-Test 12: Redirection takes precedence in the case that both piping and redirection are specified in a command
+Test 15: Redirection takes precedence in the case that both piping and redirection are specified in a command
 Connects the output of argsprog with the commands "this should be lost to redir", but redirects the standard input of redir to the text file
 progin.txt, which contains the line "123 xyz abcd lmnop".
 input: 
@@ -149,7 +222,7 @@ beginning of redir
 123 xyz abcd lmnop
 end of redir
 
-Batch mode test: runs all of the previous commands in batch mode with the file batch.txt which contains all of the commands in order.
+Test 16: Batch mode test: runs all of the previous commands in batch mode with the file batch.txt which contains all of the commands in order.
 End the previous interactive session with the exit command.
 input: ./mysh batch.txt
 
@@ -174,10 +247,68 @@ argv[2]: bar
 argv[3]: baz
 
 end of redir
+
+ ______         __   __          ___             __             
+/\__  _\       /\ \ /\ \        /\_ \           /\ \__          
+\/_/\ \/    __ \ `\`\/'/'  _____\//\ \      __  \ \ ,_\    __   
+   \ \ \  /'__`\`\/ > <   /\ '__`\\ \ \   /'__`\ \ \ \/  /'__`\ 
+    \ \ \/\  __/   \/'/\`\\ \ \L\ \\_\ \_/\ \L\.\_\ \ \_/\  __/ 
+     \ \_\ \____\  /\_\\ \_\ \ ,__//\____\ \__/.\_\\ \__\ \____\
+      \/_/\/____/  \/_/ \/_/\ \ \/ \/____/\/__/\/_/ \/__/\/____/
+                             \ \_\                              
+                              \/_/                              
+
+TeXplate 1.0.4, a document structure creation tool
+Copyright (c) 2024, Island of TeX
+All rights reserved.
+
+Missing required option: '--output=<output>'
+Usage: texplate [-c=<configuration>] -o=<output> [-t=<template>]
+                [-m=<String=String>...]...
+  -c, --config=<configuration>
+                          The configuration file in which the tool
+                            can read template data, for automation
+                            purposes. Make sure to follow the correct
+                            specification when writing a
+                            configuration file.
+  -m, --map=<String=String>...
+                          The contextual map that provides the data
+                            to be merged in the template. This
+                            parameter can be used multiple times. You
+                            can specify a map entry with the
+                            key=value syntax (mind the entry
+                            separator).
+  -o, --output=<output>   The output file in which the chosen
+                            template will be effectively written.
+                            Make sure the directory has the correct
+                            permissions for writing the output file.
+  -t, --template=<template>
+                          The name of the template. The tool will
+                            search both user and system locations and
+                            set the template model accordingly, based
+                            on your specs.
+
+ciptool - Bluetooth Common ISDN Access Profile (CIP)
+
+Usage:
+        ciptool [options] [command]
+
+Options:
+        -i [hciX|bdaddr]   Local HCI device or BD Address
+        -h, --help         Display help
+
+Commands:
+        show                    Show remote connections
+        search                  Search for a remote device
+        connect  <bdaddr>       Connect a remote device
+        release  [bdaddr]       Disconnect the remote device
+        loopback <bdaddr>       Loopback test of a device
+
 .
 a
 d
 g
+
 execv: No such file or directory
 Previous command failed, command not executed.
 Previous command failed, command not executed.
@@ -189,6 +320,7 @@ prog executed
 prog executed
 Previous command succeeded, command not executed.
 Previous command succeeded, command not executed.
+
 execv: No such file or directory
 argv[0]: ./argsprog
 argv[1]: e
@@ -203,15 +335,17 @@ beginning of redir
 123 xyz abcd lmnop
 end of redir
 
+expected output (in pipout.txt):
+pip 23.1.2 from /usr/local/lib/python3.10/dist-packages/pip (python 3.10)
 
-Test 13: Built-in Commands(pwd): Tests if pwd correctly prints the current working directory. No special preparation needed for this; simply compile with the makefile, run the program using './mysh',run pwd, and expect the current directory as output.
+Test 17: Built-in Commands(pwd): Tests if pwd correctly prints the current working directory. No special preparation needed for this; simply compile with the makefile, run the program using './mysh',run pwd, and expect the current directory as output.
  Commands;
  1. ./mysh
  2. pwd
 
 For error handling, we tried to run pwd with a command after it to confirm the error message we put in the program would a pead (which it does)
 
-Test 14: Built-in Commands(cd): The goal of this test was to verify the shell's cd command functionality by changing directories within the shell environment and using pwd to display the current directory to ensure the changes took effect. The test involves navigating into a subdirectory, moving back up the directory tree, and then moving back into the original directory.
+Test 18: Built-in Commands(cd): The goal of this test was to verify the shell's cd command functionality by changing directories within the shell environment and using pwd to display the current directory to ensure the changes took effect. The test involves navigating into a subdirectory, moving back up the directory tree, and then moving back into the original directory.
 
 Environment Setup:
 
@@ -245,7 +379,7 @@ Result: The shell's cd functionality allows for expected directory navigation, d
 We then checked for the error handling by trying to use change directory into a directory what did not exist (Which worked). We also tried to use cd when there where no argument as well as when there were two or more arguments ('cd' , 'cd myShell testFol' , etc.). We were met with an error message just as programmed.
 
 
-Test 15: Built-in Commands(which): Test the which command functionality in a custom shell to verify it can accurately identify the location of executables within the system's PATH.  which is used to locate a command by searching the directories listed in the environment's PATH variable. It should return the path of the executable file if found.
+Test 19: Built-in Commands(which): Test the which command functionality in a custom shell to verify it can accurately identify the location of executables within the system's PATH.  which is used to locate a command by searching the directories listed in the environment's PATH variable. It should return the path of the executable file if found.
 
 Environment Setup and Test Execution:
 
@@ -288,130 +422,4 @@ Observe Behavior:
 
 Expected Behavior: The shell stops asking for new commands and returns control to the original terminal session or command prompt. The transition is smooth, without errors, indicating the shell has gracefully closed.
 
----Bare names---
-As of right now bare name commands cause problems with pipe commands when run in the same interactive session
-or from the same batch file. Testing these cases upon running ./mysh afresh work, however.
-Run ./mysh and then enter all of the commands under "input".
 
-Test b1: mysh takes bare names as program names and searches for them in /usr/local/bin, /usr/bin and /bin in that order
-Attempts to find and run pip in /usr/local/bin
-input:
-pip 
-expected output (in the terminal):
-Usage:   
-  pip <command> [options]
-
-Commands:
-  install                     Install packages.
-  download                    Download packages.
-  uninstall                   Uninstall packages.
-  freeze                      Output installed packages in requirements format.
-  inspect                     Inspect the python environment.
-  list                        List installed packages.
-  show                        Show information about installed packages.
-  check                       Verify installed packages have compatible dependencies.
-  config                      Manage local and global configuration.
-  search                      Search PyPI for packages.
-  cache                       Inspect and manage pip's wheel cache.
-  index                       Inspect information available from package indexes.
-  wheel                       Build wheels from your requirements.
-  hash                        Compute hashes of package archives.
-  completion                  A helper command used for command completion.
-  debug                       Show information useful for debugging.
-  help                        Show help for commands.
-
-General Options:
-  -h, --help                  Show help.
-  --debug                     Let unhandled exceptions propagate outside the main subroutine, instead of logging them to stderr.
-  --isolated                  Run pip in an isolated mode, ignoring environment variables and user configuration.
-  --require-virtualenv        Allow pip to only run in a virtual environment; exit with an error otherwise.
-  --python <python>           Run pip with the specified Python interpreter.
-  -v, --verbose               Give more output. Option is additive, and can be used up to 3 times.
-  -V, --version               Show version and exit.
-  -q, --quiet                 Give less output. Option is additive, and can be used up to 3 times (corresponding to WARNING, ERROR, and CRITICAL logging levels).
-  --log <path>                Path to a verbose appending log.
-  --no-input                  Disable prompting for input.
-  --keyring-provider <keyring_provider>
-                              Enable the credential lookup via the keyring library if user input is allowed. Specify which mechanism to use [disabled, import, subprocess]. (default: disabled)
-  --proxy <proxy>             Specify a proxy in the form scheme://[user:passwd@]proxy.server:port.
-  --retries <retries>         Maximum number of retries each connection should attempt (default 5 times).
-  --timeout <sec>             Set the socket timeout (default 15 seconds).
-  --exists-action <action>    Default action when a path already exists: (s)witch, (i)gnore, (w)ipe, (b)ackup, (a)bort.
-  --trusted-host <hostname>   Mark this host or host:port pair as trusted, even though it does not have valid or any HTTPS.
-  --cert <path>               Path to PEM-encoded CA certificate bundle. If provided, overrides the default. See 'SSL Certificate Verification' in pip documentation for more information.
-  --client-cert <path>        Path to SSL client certificate, a single file containing the private key and the certificate in PEM format.
-  --cache-dir <dir>           Store the cache data in <dir>.
-  --no-cache-dir              Disable the cache.
-  --disable-pip-version-check
-                              Don't periodically check PyPI to determine whether a new version of pip is available for download. Implied with --no-index.
-  --no-color                  Suppress colored output.
-  --no-python-version-warning
-                              Silence deprecation warnings for upcoming unsupported Pythons.
-  --use-feature <feature>     Enable new functionality, that may be backward incompatible.
-  --use-deprecated <feature>  Enable deprecated functionality, that will be removed in the future.
-
-Test b2: mysh takes bare names as program names and searches for them in /usr/local/bin, /usr/bin and /bin in that order
-Attempts to find and run texplate in /usr/bin
-input:
-texplate
-expected output (in the terminal):
- ______         __   __          ___             __             
-/\__  _\       /\ \ /\ \        /\_ \           /\ \__          
-\/_/\ \/    __ \ `\`\/'/'  _____\//\ \      __  \ \ ,_\    __   
-   \ \ \  /'__`\`\/ > <   /\ '__`\\ \ \   /'__`\ \ \ \/  /'__`\ 
-    \ \ \/\  __/   \/'/\`\\ \ \L\ \\_\ \_/\ \L\.\_\ \ \_/\  __/ 
-     \ \_\ \____\  /\_\\ \_\ \ ,__//\____\ \__/.\_\\ \__\ \____\
-      \/_/\/____/  \/_/ \/_/\ \ \/ \/____/\/__/\/_/ \/__/\/____/
-                             \ \_\                              
-                              \/_/                              
-
-TeXplate 1.0.4, a document structure creation tool
-Copyright (c) 2024, Island of TeX
-All rights reserved.
-
-Missing required option: '--output=<output>'
-Usage: texplate [-c=<configuration>] -o=<output> [-t=<template>]
-                [-m=<String=String>...]...
-  -c, --config=<configuration>
-                          The configuration file in which the tool
-                            can read template data, for automation
-                            purposes. Make sure to follow the correct
-                            specification when writing a
-                            configuration file.
-  -m, --map=<String=String>...
-                          The contextual map that provides the data
-                            to be merged in the template. This
-                            parameter can be used multiple times. You
-                            can specify a map entry with the
-                            key=value syntax (mind the entry
-                            separator).
-  -o, --output=<output>   The output file in which the chosen
-                            template will be effectively written.
-                            Make sure the directory has the correct
-                            permissions for writing the output file.
-  -t, --template=<template>
-                          The name of the template. The tool will
-                            search both user and system locations and
-                            set the template model accordingly, based
-                            on your specs.
-
-Test b3: mysh takes bare names as program names and searches for them in /usr/local/bin, /usr/bin and /bin in that order
-Attempts to find and run ciptool in /bin
-input:
-ciptool
-expected output (in the terminal):
-ciptool - Bluetooth Common ISDN Access Profile (CIP)
-
-Usage:
-        ciptool [options] [command]
-
-Options:
-        -i [hciX|bdaddr]   Local HCI device or BD Address
-        -h, --help         Display help
-
-Commands:
-        show                    Show remote connections
-        search                  Search for a remote device
-        connect  <bdaddr>       Connect a remote device
-        release  [bdaddr]       Disconnect the remote device
-        loopback <bdaddr>       Loopback test of a device
