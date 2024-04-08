@@ -204,11 +204,48 @@ beginning of redir
 end of redir
 
 
-
-Test 14: Built-in Commands(pwd): Tests if pwd correctly prints the current working directory. No special preparation needed for this; simply compile with the makefile, run the program using './mysh',run pwd, and expect the current directory as output.
+Test 13: Built-in Commands(pwd): Tests if pwd correctly prints the current working directory. No special preparation needed for this; simply compile with the makefile, run the program using './mysh',run pwd, and expect the current directory as output.
  Commands;
  1. ./mysh
  2. pwd
+
+Test 14: Built-in Commands(cd): The goal of this test was to verify the shell's cd command functionality by changing directories within the shell environment and using pwd to display the current directory to ensure the changes took effect. The test involves navigating into a subdirectory, moving back up the directory tree, and then moving back into the original directory.
+
+Environment Setup:
+
+Initial directory: /common/home/amg610/CS214
+Test directory: testFol (located within the initial directory)
+
+Test Steps:
+
+Initial Directory Check
+
+Command: pwd
+Expected Output: /common/home/amg610/CS214
+Enter Test Directory
+
+Command: cd testFol then pwd
+Expected Output: /common/home/amg610/CS214/testFol
+Navigate Up Once
+
+Command: cd .. then pwd
+Expected Output: /common/home/amg610/CS214
+Navigate Up Again
+
+Command: cd .. then pwd
+Expected Output: /common/home/amg610
+Return to Initial Directory
+
+Command: cd CS214 then pwd
+Expected Output: /common/home/amg610/CS214
+Result: The shell's cd functionality allows for expected directory navigation, demonstrating its correct implementation.
+
+
+Test
+
+
+
+
 
 
 
