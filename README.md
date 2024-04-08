@@ -274,9 +274,19 @@ Non-existent Command: Before adding prog to the PATH, which prog should return a
 
 
 
+Test 15: Built-in Commands(exit): The exit command is a built-in feature that instructs the shell to terminate the current session. It's a crucial command for closing the shell when the user has completed their tasks. We simply compile and run our code using ./mysh. When it asks for a command, all we do is type exit and then it goes to the next line and stops asking and executing commands. 
 
+Testing Process:
 
+Compile and Run the Shell:
 
+The custom shell is compiled (if necessary) and launched by executing ./mysh in the terminal. This step initiates the shell session, ready to accept commands from the user.
+Issue exit Command:
+
+Upon the shell prompting "Enter a command:", the user inputs exit and presses Enter. This action sends the instruction to terminate the shell session.
+Observe Behavior:
+
+Expected Behavior: The shell stops asking for new commands and returns control to the original terminal session or command prompt. The transition is smooth, without errors, indicating the shell has gracefully closed.
 
 ---Bare names---
 As of right now bare name commands cause problems with pipe commands when run in the same interactive session
