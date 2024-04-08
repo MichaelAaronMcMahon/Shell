@@ -1,3 +1,0 @@
-beginning of redir
-123 xyz abcd lmnop
-end of redir

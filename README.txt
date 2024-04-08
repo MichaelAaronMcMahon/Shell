@@ -2,11 +2,15 @@ Authors:
 Michael McMahon mam1198
 Ammar Ghauri amg610
 
+Testing instructions:
+Make all of the programs in the Makefile. Start mysh with ./mysh and then enter each of the commands under "input" to test each case
+in interactive mode. To test batch mode, run ./mysh batch.txt, batch.txt being a text file with many commands for mysh. The expected output 
+for batch is shown in test 16.
+
 ---Test Specification---
 
-Tests 1-15: Interactive mode: Upon running mysh without any commands, it is expected to print "Welcome to my shell" to the terminal and then
-"Enter a command: " before each command. Start the program with ./mysh and then enter each of the commands under "input" to test each case
-in interactive mode. 
+Interactive mode: Upon running mysh without any commands, it is expected to print "Welcome to my shell" to the terminal and then
+"Enter a command: " before each command. 
 
 Test 1: Mysh executes a program
 When given the name of an executable program, mysh runs it. Gives mysh the name prog, a program which prints the string "prog executed".

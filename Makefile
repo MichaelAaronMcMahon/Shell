@@ -4,7 +4,7 @@ argsprog: argsprog.c
 	gcc -o argsprog argsprog.c
 redir: redir.c
 	gcc -o redir redir.c
-lines: lines.c lines.h
-	gcc -o lines lines.c
 dirprog: ./foo/bar/dirprog.c
 	gcc -o ./foo/bar/dirprog ./foo/bar/dirprog.c
+prog: prog.c
+	gcc -o prog prog.c

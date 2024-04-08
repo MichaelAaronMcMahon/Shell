@@ -124,10 +124,6 @@ char* ulb = "/usr/local/bin/";
 int p1mal=0;
 
 int executeCmd(void *st, char* buf, int fd){
-    
-    //printf("lastCmd[0]: %d\n", lastCmd[0]);
-    //printf("lastCmd[1]: %d\n", lastCmd[1]);
-    
     char* prog1in; //names of redirected input and output files
     char* prog1out;
     char* prog2in;
@@ -331,27 +327,16 @@ int executeCmd(void *st, char* buf, int fd){
             int fd = open(prog1out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
             dup2(fd, 1);
         }
-        //printf("args[0]: %s\n", args[0]);
         if(strstr(args[0], "/") == NULL){
-            //printf("args[0]: %s\n", args[0]);
             printf("\n");
-            //printf("p1mal: %d\n", p1mal);
-            //printf("strlen(args[0]): %ld\n", strlen(args[0]));
             char* p1 = malloc(15+strlen(args[0]) + 1);
-            //p1mal=1;
             strcat(p1, ulb);
             strcat(p1, args[0]);
-            
-            //printf("p1: %s\n", p1);
-            //printf("p1+333: %s\n", p1 + (strlen(p1) - 15 - strlen(args[0])));
             char *p1fix = p1 + (strlen(p1) - 15 - strlen(args[0]));
-            //printf("p1fix: %s\n", p1fix);
-            
             if(access(p1fix, F_OK) == 0){
                 args[0] = p1fix;
                 execv(p1fix, args);
             }
-            //free(p1);
             
             char* p2 = malloc(9+strlen(args[0]) + 1);
             strcat(p2, "/usr/bin/");
@@ -386,11 +371,9 @@ int executeCmd(void *st, char* buf, int fd){
         perror("execv"); // this only reache if execv fails
         exit(EXIT_FAILURE); // ensures child process exits if execv fails
     }
-    else{
-        perror("fork");
-    }
-
-    //pid_t child2 = fork(); //process for prog2
+    //else{
+    //    perror("fork");
+   // }
     if(piping==1){
         if(fork() == 0){
             //printf("p1mal: %d\n", p1mal);
@@ -404,7 +387,7 @@ int executeCmd(void *st, char* buf, int fd){
                 int fd = open(prog2out, O_WRONLY|O_TRUNC|O_CREAT, 0640);
                 dup2(fd, 1);
             }
-            /*if(strstr(args[pipeIndex], "/") == NULL && strcmp(args[pipeIndex],"cd") != 0 && strcmp(args[pipeIndex],"which") != 0 &&
+            if(strstr(args[pipeIndex], "/") == NULL && strcmp(args[pipeIndex],"cd") != 0 && strcmp(args[pipeIndex],"which") != 0 &&
             strcmp(args[pipeIndex],"pwd") != 0 && strcmp(args[pipeIndex],"exit") != 0){
                 //printf("%s\n", args[pipeIndex]);
                 char* p1_2 = malloc(15+strlen(args[pipeIndex]) + 1);
@@ -428,8 +411,8 @@ int executeCmd(void *st, char* buf, int fd){
             }
             else{
                 execv(args[pipeIndex], args+pipeIndex); //executes prog2 with latter section of args array
-            }*/
-            execv(args[pipeIndex], args+pipeIndex);
+            }
+            //execv(args[pipeIndex], args+pipeIndex);
             perror("execv"); // this only reache if execv fails
             exit(EXIT_FAILURE); // ensures child process exits if execv fails*/
         }
@@ -453,55 +436,15 @@ int executeCmd(void *st, char* buf, int fd){
         if(args[i] != NULL) free(args[i]);
     }
     free(prog1);
-    //printf("Enter a command:\n");
-    //printf("%d\n", WEXITSTATUS(wstatus1));
-    //printf("%d\n", WEXITSTATUS(wstatus2));
     lastCmd[0] = WEXITSTATUS(wstatus1);
     lastCmd[1] = WEXITSTATUS(wstatus2);
     if(isatty(fd) == 1){
         printf("Enter a command: \n");
     }
-    
-    //return WIFEXITED(wstatus1) ? WEXITSTATUS(wstatus1) : -1;
-    //return WIFEXITED(wstatus2) ? WEXITSTATUS(wstatus2) : -1;
-
-    
 }
 
 int readInput(FILE *input, int fd) {
-    /*char *buf = malloc(sizeof(char) * 256);
-    if (buf == NULL) {
-        perror("malloc");
-        return -1;
-    }
-
-    if (isatty(fd) == 1) {
-        printf("Enter a command:\n");
-    }
-    while (fgets(buf, 256, input) != NULL) {
-        char *tmpBuf = strdup(buf); // Duplicate buf for tokenization without modifying the original buf
-        if (!tmpBuf) {
-            perror("strdup");
-            break;
-        }
-
-        char *args[15];
-        int argcount = 0;
-        char *token = strtok(tmpBuf, " \n");
-
-        while (token != NULL && argcount < 14) {
-            args[argcount++] = token;
-            token = strtok(NULL, " \n");
-        }
-        args[argcount] = NULL;
-
-        if (argcount > 0 && !handleBuiltInCommands(args[0], args)) {
-            int n=0;
-            read_lines(fd, executeCmd, &n);
-        }
-    }*/
     int n=0;
-    //moved handleBuiltInCommands call to executeCmd
     read_lines(fd, executeCmd, &n);
     
 }
